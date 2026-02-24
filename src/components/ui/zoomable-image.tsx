@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { AnimatePresence } from "motion/react";
 import { ZoomIn, ZoomOut, RotateCcw, X } from "lucide-react";
 
 interface ZoomableImageProps {
@@ -13,28 +13,34 @@ interface ZoomableImageProps {
 
 export function ZoomableImage({ src, alt, className, caption }: ZoomableImageProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [scale, setScale] = useState(0.6);
+  const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imgError, setImgError] = useState(false);
+  const [fadeIn, setFadeIn] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const DEFAULT_SCALE = 0.6;
-  const MIN_SCALE = 0.3;
+  const MIN_SCALE = 0.5;
   const MAX_SCALE = 5;
   const ZOOM_STEP = 0.15;
 
   const handleOpen = () => {
     setIsOpen(true);
-    setScale(DEFAULT_SCALE);
+    setScale(1);
     setPosition({ x: 0, y: 0 });
+    // Trigger CSS fade-in on next frame
+    requestAnimationFrame(() => setFadeIn(true));
   };
 
   const handleClose = useCallback(() => {
-    setIsOpen(false);
-    setScale(DEFAULT_SCALE);
-    setPosition({ x: 0, y: 0 });
+    setFadeIn(false);
+    // Wait for fade-out, then unmount
+    setTimeout(() => {
+      setIsOpen(false);
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    }, 200);
   }, []);
 
   const handleZoomIn = () => {
@@ -44,13 +50,13 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
   const handleZoomOut = () => {
     setScale((prev) => {
       const newScale = Math.max(prev - ZOOM_STEP, MIN_SCALE);
-      if (newScale <= DEFAULT_SCALE) setPosition({ x: 0, y: 0 });
+      if (newScale <= 1) setPosition({ x: 0, y: 0 });
       return newScale;
     });
   };
 
   const handleReset = () => {
-    setScale(DEFAULT_SCALE);
+    setScale(1);
     setPosition({ x: 0, y: 0 });
   };
 
@@ -61,14 +67,14 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
     const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
     setScale((prev) => {
       const newScale = Math.max(MIN_SCALE, Math.min(prev + delta, MAX_SCALE));
-      if (newScale <= DEFAULT_SCALE) setPosition({ x: 0, y: 0 });
+      if (newScale <= 1) setPosition({ x: 0, y: 0 });
       return newScale;
     });
   }, []);
 
-  // Pan/drag — only when zoomed beyond default
+  // Pan/drag — only when zoomed beyond 100%
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (scale <= DEFAULT_SCALE) return;
+    if (scale <= 1) return;
     e.preventDefault();
     setIsDragging(true);
     setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
@@ -134,9 +140,9 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
 
   return (
     <>
-      {/* Thumbnail — click to open viewer */}
+      {/* Thumbnail — smaller, centered, click to preview */}
       <figure
-        className="group relative overflow-hidden rounded-lg border border-border bg-muted/30 transition-[box-shadow,border-color] hover:shadow-lg hover:border-primary/30 cursor-pointer"
+        className="group relative mx-auto max-w-md overflow-hidden rounded-lg border border-border bg-muted/30 transition-[box-shadow,border-color] hover:shadow-lg hover:border-primary/30 cursor-pointer"
         onClick={handleOpen}
       >
         <div className="relative overflow-hidden">
@@ -161,89 +167,82 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
         )}
       </figure>
 
-      {/* Fullscreen viewer — image always centered */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-9999 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-            onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
-          >
-            {/* Toolbar — top-right */}
-            <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
-              <div className="flex items-center gap-1 rounded-lg bg-black/60 p-1 backdrop-blur-sm border border-white/10">
-                <button onClick={handleZoomOut} disabled={scale <= MIN_SCALE} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" title="Zoom out">
-                  <ZoomOut className="h-4 w-4" />
-                </button>
-                <span className="min-w-12 text-center text-xs font-mono text-white/80">{Math.round(scale * 100)}%</span>
-                <button onClick={handleZoomIn} disabled={scale >= MAX_SCALE} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" title="Zoom in">
-                  <ZoomIn className="h-4 w-4" />
-                </button>
-                <div className="mx-1 h-4 w-px bg-white/20" />
-                <button onClick={handleReset} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white" title="Reset zoom">
-                  <RotateCcw className="h-4 w-4" />
-                </button>
-              </div>
-              <button onClick={handleClose} className="rounded-lg bg-black/60 p-2 text-white/80 backdrop-blur-sm border border-white/10 transition-colors hover:bg-red-500/80 hover:text-white" title="Close">
-                <X className="h-4 w-4" />
+      {/* Fullscreen viewer — pure CSS centering, no Framer Motion conflicts */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-[9999]"
+          style={{ opacity: fadeIn ? 1 : 0, transition: "opacity 0.2s ease" }}
+        >
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+            onClick={handleClose}
+          />
+
+          {/* Toolbar — top-right */}
+          <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-lg bg-black/60 p-1 backdrop-blur-sm border border-white/10">
+              <button onClick={handleZoomOut} disabled={scale <= MIN_SCALE} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" title="Zoom out">
+                <ZoomOut className="h-4 w-4" />
+              </button>
+              <span className="min-w-14 text-center text-xs font-mono text-white/80">{Math.round(scale * 100)}%</span>
+              <button onClick={handleZoomIn} disabled={scale >= MAX_SCALE} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" title="Zoom in">
+                <ZoomIn className="h-4 w-4" />
+              </button>
+              <div className="mx-1 h-4 w-px bg-white/20" />
+              <button onClick={handleReset} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white" title="Reset zoom">
+                <RotateCcw className="h-4 w-4" />
               </button>
             </div>
+            <button onClick={handleClose} className="rounded-lg bg-black/60 p-2 text-white/80 backdrop-blur-sm border border-white/10 transition-colors hover:bg-red-500/80 hover:text-white" title="Close (Esc)">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
 
-            {/* Scroll hint */}
-            {scale <= DEFAULT_SCALE && (
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-black/50 px-4 py-2 text-xs text-white/60 backdrop-blur-sm border border-white/10"
-              >
-                Scroll to zoom &middot; Click outside to close
-              </motion.div>
-            )}
-
-            {/* Image container — always centered with flexbox */}
-            <div
-              ref={containerRef}
-              className="flex items-center justify-center"
-              style={{
-                width: "100vw",
-                height: "100vh",
-                cursor: scale > DEFAULT_SCALE ? (isDragging ? "grabbing" : "grab") : "default",
-              }}
-              onWheel={handleWheel}
-              onMouseDown={handleMouseDown}
-              onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
-            >
-              <motion.img
-                src={src}
-                alt={alt}
-                initial={{ scale: 0.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                className="rounded-lg shadow-2xl select-none"
-                style={{
-                  maxWidth: "none",
-                  maxHeight: "none",
-                  transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
-                  transition: isDragging ? "none" : "transform 0.2s ease-out",
-                  transformOrigin: "center center",
-                }}
-                draggable={false}
-              />
+          {/* Scroll hint */}
+          {scale <= 1 && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-black/50 px-4 py-2 text-xs text-white/60 backdrop-blur-sm border border-white/10">
+              Scroll to zoom &middot; Click outside to close
             </div>
+          )}
 
-            {/* Caption */}
-            {caption && (
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-lg rounded-lg bg-black/60 px-4 py-2.5 text-sm text-white text-center backdrop-blur-sm border border-white/10">
-                {caption}
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* Image container — absolutely centered using inset-0 + flex */}
+          <div
+            ref={containerRef}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{
+              cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "default",
+            }}
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={src}
+              alt={alt}
+              className="rounded-lg shadow-2xl select-none pointer-events-none"
+              style={{
+                maxWidth: "60vw",
+                maxHeight: "60vh",
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+                transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+                transition: isDragging ? "none" : "transform 0.2s ease-out",
+                transformOrigin: "center center",
+              }}
+              draggable={false}
+            />
+          </div>
+
+          {/* Caption */}
+          {caption && (
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-lg rounded-lg bg-black/60 px-4 py-2.5 text-sm text-white text-center backdrop-blur-sm border border-white/10">
+              {caption}
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }
