@@ -120,7 +120,7 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
 
   return (
     <>
-      {/* Thumbnail — smaller, centered */}
+      {/* Thumbnail */}
       <figure
         className="group relative mx-auto max-w-md overflow-hidden rounded-lg border border-border bg-muted/30 transition-[box-shadow,border-color] hover:shadow-lg hover:border-primary/30 cursor-pointer"
         onClick={handleOpen}
@@ -147,87 +147,102 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
         )}
       </figure>
 
-      {/* ─── Fullscreen viewer ─── */}
+      {/* ─── Fullscreen Lightbox ─── */}
       {isOpen && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 99999,
-            display: "grid",
-            placeItems: "center",
-            backgroundColor: "rgba(0,0,0,0.92)",
-            backdropFilter: "blur(4px)",
-          }}
-          onClick={(e) => {
-            // Close only when clicking the backdrop itself, not the image or toolbar
-            if (e.target === e.currentTarget) handleClose();
-          }}
-          onWheel={handleWheel}
-        >
-          {/* Toolbar — fixed top-right */}
-          <div style={{ position: "fixed", top: 16, right: 16, zIndex: 100000, display: "flex", gap: 8 }}>
-            <div className="flex items-center gap-1 rounded-lg bg-black/60 p-1 backdrop-blur-sm border border-white/10">
-              <button onClick={handleZoomOut} disabled={scale <= MIN_SCALE} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" title="Zoom out">
-                <ZoomOut className="h-4 w-4" />
-              </button>
-              <span className="min-w-14 text-center text-xs font-mono text-white/80">{Math.round(scale * 100)}%</span>
-              <button onClick={handleZoomIn} disabled={scale >= MAX_SCALE} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" title="Zoom in">
-                <ZoomIn className="h-4 w-4" />
-              </button>
-              <div className="mx-1 h-4 w-px bg-white/20" />
-              <button onClick={handleReset} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white" title="Reset zoom">
-                <RotateCcw className="h-4 w-4" />
-              </button>
-            </div>
-            <button onClick={handleClose} className="rounded-lg bg-black/60 p-2 text-white/80 backdrop-blur-sm border border-white/10 transition-colors hover:bg-red-500/80 hover:text-white" title="Close (Esc)">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Hint */}
-          {scale <= 1 && (
-            <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 100000 }}
-              className="rounded-full bg-black/50 px-4 py-2 text-xs text-white/60 backdrop-blur-sm border border-white/10"
-            >
-              Scroll to zoom · Click outside to close
-            </div>
-          )}
-
-          {/* The image — grid child, auto-centered by place-items: center */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={src}
-            alt={alt}
-            draggable={false}
-            onMouseDown={handleMouseDown}
+        <>
+          {/* Backdrop — frosted glass, click to close */}
+          <div
+            onClick={handleClose}
             style={{
-              maxWidth: "70vw",
-              maxHeight: "70vh",
-              width: "auto",
-              height: "auto",
-              objectFit: "contain",
-              borderRadius: 8,
-              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
-              userSelect: "none",
-              cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "default",
-              transform: scale === 1 && position.x === 0 && position.y === 0
-                ? "none"
-                : `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
-              transition: isDragging ? "none" : "transform 0.2s ease-out",
-              transformOrigin: "center center",
+              position: "fixed",
+              inset: 0,
+              zIndex: 99998,
+              backgroundColor: "rgba(0, 0, 0, 0.6)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
             }}
           />
 
-          {/* Caption */}
-          {caption && (
-            <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 100000, maxWidth: 500 }}
-              className="rounded-lg bg-black/60 px-4 py-2.5 text-sm text-white text-center backdrop-blur-sm border border-white/10"
-            >
-              {caption}
+          {/* Card — centered with explicit translate, NOT grid/flex */}
+          <div
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 99999,
+              maxWidth: "80vw",
+              maxHeight: "85vh",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+            onWheel={handleWheel}
+          >
+            {/* Toolbar — above the image card */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 10, flexShrink: 0 }}>
+              <div className="flex items-center gap-1 rounded-full bg-white/10 dark:bg-white/10 px-2 py-1 backdrop-blur-md border border-white/20">
+                <button onClick={handleZoomOut} disabled={scale <= MIN_SCALE} className="rounded-full p-1.5 text-white/80 transition-colors hover:bg-white/20 hover:text-white disabled:opacity-30" title="Zoom out">
+                  <ZoomOut className="h-3.5 w-3.5" />
+                </button>
+                <span className="min-w-10 text-center text-xs font-mono text-white/90">{Math.round(scale * 100)}%</span>
+                <button onClick={handleZoomIn} disabled={scale >= MAX_SCALE} className="rounded-full p-1.5 text-white/80 transition-colors hover:bg-white/20 hover:text-white disabled:opacity-30" title="Zoom in">
+                  <ZoomIn className="h-3.5 w-3.5" />
+                </button>
+                <div className="mx-0.5 h-3.5 w-px bg-white/20" />
+                <button onClick={handleReset} className="rounded-full p-1.5 text-white/80 transition-colors hover:bg-white/20 hover:text-white" title="Reset">
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <button onClick={handleClose} className="rounded-full bg-white/10 p-1.5 text-white/80 backdrop-blur-md border border-white/20 transition-colors hover:bg-red-500/60 hover:text-white" title="Close (Esc)">
+                <X className="h-3.5 w-3.5" />
+              </button>
             </div>
-          )}
-        </div>
+
+            {/* Image container — card-style with white border */}
+            <div
+              className="overflow-hidden rounded-xl bg-white dark:bg-zinc-900 shadow-2xl border border-white/20"
+              style={{
+                maxWidth: "75vw",
+                maxHeight: "70vh",
+                cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "default",
+              }}
+              onMouseDown={handleMouseDown}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt={alt}
+                draggable={false}
+                style={{
+                  display: "block",
+                  maxWidth: "75vw",
+                  maxHeight: "70vh",
+                  width: "auto",
+                  height: "auto",
+                  objectFit: "contain",
+                  userSelect: "none",
+                  transform:
+                    scale === 1 && position.x === 0 && position.y === 0
+                      ? "none"
+                      : `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+                  transition: isDragging ? "none" : "transform 0.2s ease-out",
+                  transformOrigin: "center center",
+                }}
+              />
+            </div>
+
+            {/* Caption — below the image card */}
+            {caption && (
+              <p
+                className="text-white/80 text-xs text-center mt-3 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10"
+                style={{ maxWidth: "60vw", flexShrink: 0 }}
+              >
+                {caption}
+              </p>
+            )}
+          </div>
+        </>
       )}
     </>
   );
