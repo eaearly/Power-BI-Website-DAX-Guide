@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -92,35 +92,9 @@ interface VisualType {
   tip?: string;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Component                                                          */
-/* ------------------------------------------------------------------ */
+/* ── Data Arrays (module scope — never recreated) ── */
 
-export function DataVisualizationContent() {
-  const [activeSection, setActiveSection] = useState("overview");
-
-  /* Track scroll position for sidebar active state */
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = sidebarNav.map((item) => ({
-        id: item.id,
-        el: document.getElementById(item.id),
-      }));
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = sections[i].el;
-        if (el && el.getBoundingClientRect().top <= 120) {
-          setActiveSection(sections[i].id);
-          break;
-        }
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  /* ── Data Arrays ── */
-
-  const createReportSteps: Step[] = [
+const createReportSteps: Step[] = [
     {
       step: 1,
       title: "Connect to Your Data Source",
@@ -425,12 +399,14 @@ export function DataVisualizationContent() {
     },
   ];
 
-  /* ── Helper: render a visual card ── */
-  const VisualCard = ({ vis }: { vis: VisualType }) => (
+/* ── Helper: render a visual card (module scope — stable reference) ── */
+function VisualCard({ vis }: { vis: VisualType }) {
+  const Icon = vis.icon;
+  return (
     <Card className="transition-shadow hover:shadow-md">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
-          <vis.icon className="h-4 w-4 text-amber-500" />
+          <Icon className="h-4 w-4 text-amber-500" />
           {vis.name}
         </CardTitle>
         <CardDescription>{vis.description}</CardDescription>
@@ -449,19 +425,21 @@ export function DataVisualizationContent() {
       </CardContent>
     </Card>
   );
+}
 
-  /* ── Helper: section header ── */
-  const SectionHeader = ({
-    icon: Icon,
-    color,
-    title,
-    subtitle,
-  }: {
-    icon: React.ElementType;
-    color: string;
-    title: string;
-    subtitle: string;
-  }) => (
+/* ── Helper: section header (module scope) ── */
+function SectionHeader({
+  icon: Icon,
+  color,
+  title,
+  subtitle,
+}: {
+  icon: React.ElementType;
+  color: string;
+  title: string;
+  subtitle: string;
+}) {
+  return (
     <div className="mb-6 flex items-center gap-3">
       <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg", color)}>
         <Icon className="h-5 w-5" />
@@ -472,6 +450,38 @@ export function DataVisualizationContent() {
       </div>
     </div>
   );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
+
+export function DataVisualizationContent() {
+  const [activeSection, setActiveSection] = useState("overview");
+  const rafRef = useRef(0);
+
+  /* Track scroll position — throttled to one rAF per frame */
+  useEffect(() => {
+    const handleScroll = () => {
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        const sectionIds = sidebarNav;
+        for (let i = sectionIds.length - 1; i >= 0; i--) {
+          const el = document.getElementById(sectionIds[i].id);
+          if (el && el.getBoundingClientRect().top <= 120) {
+            setActiveSection(sectionIds[i].id);
+            break;
+          }
+        }
+      });
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   return (
     <PageTransition>

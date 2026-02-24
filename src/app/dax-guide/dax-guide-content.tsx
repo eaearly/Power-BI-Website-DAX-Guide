@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { CodeBlock } from "@/components/ui/code-block";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -599,30 +599,38 @@ export function DAXGuideContent() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSection, setActiveSection] = useState("");
+  const rafRef = useRef(0);
 
   useEffect(() => {
     const handler = () => {
-      const ids = sidebarNav.map((s) => s.id);
-      let current = "";
-      for (const id of ids) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= 120) current = id;
-      }
-      setActiveSection(current);
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        const ids = sidebarNav.map((s) => s.id);
+        let current = "";
+        for (const id of ids) {
+          const el = document.getElementById(id);
+          if (el && el.getBoundingClientRect().top <= 120) current = id;
+        }
+        setActiveSection(current);
+      });
     };
     window.addEventListener("scroll", handler, { passive: true });
     handler();
-    return () => window.removeEventListener("scroll", handler);
+    return () => {
+      window.removeEventListener("scroll", handler);
+      cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
-  const filtered = daxFunctions.filter((fn) => {
+  const filtered = useMemo(() => daxFunctions.filter((fn) => {
     const matchesCategory = activeCategory === "all" || fn.category === activeCategory;
     const matchesSearch =
       searchQuery === "" ||
       fn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       fn.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
-  });
+  }), [activeCategory, searchQuery]);
 
   return (
     <PageTransition>
@@ -781,8 +789,7 @@ export function DAXGuideContent() {
       {/* Function Cards */}
       <div className="space-y-6">
         {filtered.map((fn, i) => (
-          <AnimateOnScroll key={fn.name} variant="fade-up" delay={Math.min(i * 60, 300)}>
-          <Card id={fn.name.toLowerCase().replace(/\s/g, "-")} className={cn("scroll-mt-20 border-l-4 transition-all duration-200 hover:shadow-md", getCategoryBorderColor(fn.category))}>
+          <Card key={fn.name} id={fn.name.toLowerCase().replace(/\s/g, "-")} className={cn("scroll-mt-20 border-l-4 transition-all duration-200 hover:shadow-md", getCategoryBorderColor(fn.category))} style={{ animationDelay: `${Math.min(i * 40, 200)}ms` }}>
             <CardHeader>
               <div className="flex flex-wrap items-center gap-2">
                 <CardTitle className="font-mono text-lg">{fn.name}</CardTitle>
@@ -821,7 +828,6 @@ export function DAXGuideContent() {
               )}
             </CardContent>
           </Card>
-          </AnimateOnScroll>
         ))}
       </div>
 

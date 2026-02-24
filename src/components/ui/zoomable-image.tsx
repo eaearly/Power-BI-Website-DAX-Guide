@@ -142,6 +142,7 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
           <img
             src={src}
             alt={alt}
+            loading="lazy"
             className={`w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02] ${className || ""}`}
             onError={() => setImgError(true)}
           />
