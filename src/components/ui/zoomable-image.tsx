@@ -97,8 +97,9 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) handleClose();
+      if (e.key === "Escape") handleClose();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);

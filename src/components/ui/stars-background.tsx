@@ -72,12 +72,22 @@ export function StarsBackground({
 
     resizeObserver.observe(canvas.parentElement!);
 
-    const render = () => {
+    /* Throttle to ~24 fps — twinkle doesn't need 60fps */
+    const FRAME_INTERVAL = 1000 / 24;
+    let lastFrameTime = 0;
+
+    const render = (now: number) => {
+      animationRef.current = requestAnimationFrame(render);
+
+      if (now - lastFrameTime < FRAME_INTERVAL) return;
+      lastFrameTime = now;
+
       if (!ctx || !canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const isDark = resolvedTheme === "dark";
       const starColor = isDark ? "255,255,255" : "30,30,30";
+      const timeSec = now * 0.001;
 
       starsRef.current.forEach((star) => {
         ctx.beginPath();
@@ -85,19 +95,15 @@ export function StarsBackground({
 
         let opacity = star.opacity;
         if (star.twinkleSpeed !== null) {
-          opacity =
-            0.3 +
-            Math.abs(Math.sin((Date.now() * 0.001) / star.twinkleSpeed)) * 0.6;
+          opacity = 0.3 + Math.abs(Math.sin(timeSec / star.twinkleSpeed)) * 0.6;
         }
 
         ctx.fillStyle = `rgba(${starColor},${isDark ? opacity : opacity * 0.45})`;
         ctx.fill();
       });
-
-      animationRef.current = requestAnimationFrame(render);
     };
 
-    render();
+    animationRef.current = requestAnimationFrame(render);
 
     return () => {
       resizeObserver.disconnect();

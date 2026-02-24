@@ -48,6 +48,42 @@ const variantStyles: Record<AnimationVariant, { from: string; to: string }> = {
   },
 };
 
+/* ------------------------------------------------------------------ */
+/*  Shared IntersectionObserver — one observer for ALL instances       */
+/* ------------------------------------------------------------------ */
+type ObserverCallback = (isIntersecting: boolean) => void;
+const observedElements = new Map<Element, ObserverCallback>();
+let sharedObserver: IntersectionObserver | null = null;
+
+function getSharedObserver(): IntersectionObserver {
+  if (!sharedObserver) {
+    sharedObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const cb = observedElements.get(entry.target);
+          if (cb) cb(entry.isIntersecting);
+        }
+      },
+      { threshold: 0.1 }
+    );
+  }
+  return sharedObserver;
+}
+
+function observe(el: Element, callback: ObserverCallback) {
+  observedElements.set(el, callback);
+  getSharedObserver().observe(el);
+}
+
+function unobserve(el: Element) {
+  observedElements.delete(el);
+  sharedObserver?.unobserve(el);
+  if (observedElements.size === 0 && sharedObserver) {
+    sharedObserver.disconnect();
+    sharedObserver = null;
+  }
+}
+
 export function AnimateOnScroll({
   children,
   className,
@@ -64,21 +100,17 @@ export function AnimateOnScroll({
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          if (once) observer.unobserve(el);
-        } else if (!once) {
-          setIsVisible(false);
-        }
-      },
-      { threshold }
-    );
+    observe(el, (isIntersecting) => {
+      if (isIntersecting) {
+        setIsVisible(true);
+        if (once) unobserve(el);
+      } else if (!once) {
+        setIsVisible(false);
+      }
+    });
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [threshold, once]);
+    return () => unobserve(el);
+  }, [once]);
 
   const { from, to } = variantStyles[variant];
 
@@ -86,7 +118,7 @@ export function AnimateOnScroll({
     <div
       ref={ref}
       className={cn(
-        "transition-all will-change-[transform,opacity,filter]",
+        "transition-all",
         isVisible ? to : from,
         className
       )}

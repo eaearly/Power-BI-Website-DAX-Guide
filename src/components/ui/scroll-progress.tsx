@@ -12,15 +12,23 @@ export function ScrollProgress() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    let rafId = 0;
     const update = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0);
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        setProgress(docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0);
+        rafId = 0;
+      });
     };
 
     window.addEventListener("scroll", update, { passive: true });
     update();
-    return () => window.removeEventListener("scroll", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   return (
@@ -40,10 +48,20 @@ export function ScrollToTop() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    const toggle = () => setShow(window.scrollY > 400);
+    let rafId = 0;
+    const toggle = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        setShow(window.scrollY > 400);
+        rafId = 0;
+      });
+    };
     window.addEventListener("scroll", toggle, { passive: true });
     toggle();
-    return () => window.removeEventListener("scroll", toggle);
+    return () => {
+      window.removeEventListener("scroll", toggle);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const scrollUp = useCallback(() => {
