@@ -297,12 +297,12 @@ export function DataModelingContent() {
                 <div className="space-y-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Relationship Best Practices</CardTitle>
+                      <CardTitle className="text-foreground font-bold">Relationship Best Practices</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <h4 className="mb-2 font-semibold text-accent">✅ Do</h4>
+                          <h4 className="mb-2 font-semibold text-green-700 dark:text-green-400">✅ Do</h4>
                           <ul className="space-y-2 text-sm">
                             {[
                               "Use single-direction filtering (1:* from dimension to fact)",
@@ -312,7 +312,7 @@ export function DataModelingContent() {
                               "Use inactive relationships with USERELATIONSHIP()",
                             ].map((item) => (
                               <li key={item} className="flex items-start gap-2">
-                                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
                                 {item}
                               </li>
                             ))}
@@ -390,7 +390,7 @@ CALCULATE(
                 <div className="grid gap-6 md:grid-cols-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-accent">Operations That Fold</CardTitle>
+                      <CardTitle className="text-foreground font-bold">Operations That Fold</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ul className="space-y-2 text-sm">
