@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { GlobalEffects } from "@/components/layout/global-effects";
 import "./globals.css";
 
 const inter = Inter({
@@ -49,6 +50,11 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true },
   },
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
@@ -60,6 +66,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
         <ThemeProvider>
+          <GlobalEffects />
           <div className="flex min-h-screen flex-col">
             <Header />
             <main className="flex-1">{children}</main>

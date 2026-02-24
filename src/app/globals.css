@@ -4,6 +4,18 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ── Smooth Scrolling ── */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem; /* offset for fixed header */
+}
+
+/* Section-level smooth reveal on scroll */
+section {
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* ── Power BI Yellow Primary Theme ── */
 :root {
   --radius: 0.625rem;
@@ -53,6 +65,10 @@
   --dax-comment: #008000;
   --dax-table: #267f99;
   --dax-column: #001080;
+
+  /* Beam path colours — light mode (darker for white bg) */
+  --beam-path-color: #64748b;
+  --beam-sub-color: #94a3b8;
 }
 
 .dark {
@@ -100,6 +116,10 @@
   --dax-comment: #6a9955;
   --dax-table: #4ec9b0;
   --dax-column: #9cdcfe;
+
+  /* Beam path colours — dark mode (lighter for dark bg) */
+  --beam-path-color: #475569;
+  --beam-sub-color: #64748b;
 }
 
 @theme inline {
@@ -206,6 +226,25 @@ code {
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+/* Smooth theme transition — only color-related properties, no layout lag */
+html:not(.no-transition) *,
+html:not(.no-transition) *::before,
+html:not(.no-transition) *::after {
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+/* Exclude heavy elements from theme transition */
+html:not(.no-transition) canvas,
+html:not(.no-transition) svg,
+html:not(.no-transition) img,
+html:not(.no-transition) video,
+html:not(.no-transition) iframe,
+html:not(.no-transition) pre,
+html:not(.no-transition) code {
+  transition: none;
 }
 
 /* ── Scroll-driven fade-in animations ── */

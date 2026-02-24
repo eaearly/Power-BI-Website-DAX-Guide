@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LayoutDashboard, LogIn, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
+import { LogIn, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
+import { motion } from "motion/react";
+import Image from "next/image";
+import powerBiLogo from "@/logos/microsoft_power-bi.png";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,8 +28,9 @@ export function LoginForm() {
       if (error) {
         setError(error.message);
       } else {
-        router.push("/");
-        router.refresh();
+        // Hard redirect to ensure Supabase session cookie is fully set
+        window.location.href = "/";
+        return;
       }
     } catch {
       setError("An unexpected error occurred. Please try again.");
@@ -48,15 +50,20 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-          <LayoutDashboard className="h-6 w-6 text-primary-foreground" />
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+    >
+    <Card className="w-full max-w-xl min-h-[560px] flex flex-col transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/20">
+      <CardHeader className="text-center pt-10">
+        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-primary overflow-hidden">
+          <Image src={powerBiLogo} alt="PowerBIHub" width={32} height={32} className="object-contain" />
         </div>
         <CardTitle className="text-2xl">Welcome Back</CardTitle>
         <CardDescription>Sign in to your PowerBIHub account</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex-1 space-y-5 px-10 pb-10">
         {/* Error */}
         {error && (
           <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -69,7 +76,7 @@ export function LoginForm() {
         <div className="grid gap-2">
           <Button
             variant="outline"
-            className="w-full gap-2"
+            className="w-full gap-2 transition-all duration-300 hover:shadow-sm hover:border-primary/30 hover:-translate-y-0.5"
             onClick={() => handleOAuthSignIn("github")}
             type="button"
           >
@@ -80,7 +87,7 @@ export function LoginForm() {
           </Button>
           <Button
             variant="outline"
-            className="w-full gap-2"
+            className="w-full gap-2 transition-all duration-300 hover:shadow-sm hover:border-primary/30 hover:-translate-y-0.5"
             onClick={() => handleOAuthSignIn("google")}
             type="button"
           >
@@ -160,5 +167,6 @@ export function LoginForm() {
         </p>
       </CardContent>
     </Card>
+    </motion.div>
   );
 }

@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
+import { PageTransition } from "@/components/ui/page-transition";
 import {
   ArrowRight,
   BarChart3,
   BookOpen,
   Code2,
   Database,
+  Eye,
   Layers,
   Sparkles,
   Zap,
@@ -45,6 +47,15 @@ const features = [
     href: "/data-modeling",
     badge: "Star Schema",
     badgeVariant: "column" as const,
+  },
+  {
+    icon: Eye,
+    title: "Data Visualization",
+    description:
+      "Create stunning dashboards and reports. Copilot AI, visual types, publishing workflows, and best practices.",
+    href: "/data-visualization",
+    badge: "Copilot AI",
+    badgeVariant: "secondary" as const,
   },
   {
     icon: BookOpen,
@@ -92,6 +103,7 @@ const highlights = [
 
 export function HomeContent() {
   return (
+    <PageTransition>
     <>
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-border">
@@ -102,19 +114,19 @@ export function HomeContent() {
           <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-blue-500/5 blur-3xl" />
         </div>
 
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-28 lg:px-8 lg:py-36">
+        <div className="mx-auto w-full max-w-[1600px] px-6 py-14 sm:px-10 sm:py-28 lg:px-16 lg:py-36">
           <div className="mx-auto max-w-3xl text-center">
             <AnimateOnScroll variant="fade-scale" duration={500}>
               <Badge variant="dax" className="mb-4">
                 <Sparkles className="mr-1 h-3 w-3" />
-                PowerBI Guide
+                PowerBIHub
               </Badge>
             </AnimateOnScroll>
 
             <AnimateOnScroll variant="fade-up" delay={100} duration={700}>
               <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl xl:text-6xl">
                 Master{" "}
-                <span className="bg-gradient-to-r from-primary via-yellow-400 to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-yellow-500 via-amber-300 to-yellow-500 bg-clip-text text-transparent drop-shadow-sm">
                   Power BI
                 </span>{" "}
                 &amp; DAX
@@ -150,7 +162,7 @@ export function HomeContent() {
           {/* DAX Preview Snippet */}
           <AnimateOnScroll variant="fade-up" delay={500} duration={800}>
             <div className="mx-auto mt-16 max-w-2xl">
-              <div className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-primary/5 animate-pulse-glow">
+              <div className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl shadow-primary/5 animate-pulse-glow transition-all duration-500 hover:shadow-primary/20 hover:scale-[1.01] hover:border-primary/30">
                 <div className="flex items-center gap-2 border-b border-border bg-muted/50 px-4 py-3">
                   <div className="h-3 w-3 rounded-full bg-red-500/60" />
                   <div className="h-3 w-3 rounded-full bg-yellow-500/60" />
@@ -180,7 +192,7 @@ export function HomeContent() {
       </section>
 
       {/* Feature Cards */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-[1600px] px-6 py-20 sm:px-10 lg:px-16">
         <AnimateOnScroll variant="fade-up">
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
@@ -224,7 +236,7 @@ export function HomeContent() {
 
       {/* Highlights Grid */}
       <section className="border-t border-border bg-muted/20">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1600px] px-6 py-20 sm:px-10 lg:px-16">
           <AnimateOnScroll variant="fade-up">
             <div className="text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Built for Developers</h2>
@@ -237,7 +249,7 @@ export function HomeContent() {
           <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {highlights.map((item, i) => (
               <AnimateOnScroll key={item.title} variant="fade-up" delay={i * 100}>
-                <div className="group flex gap-4 rounded-xl p-4 transition-colors duration-200 hover:bg-muted/50">
+                <div className="group flex gap-4 rounded-xl p-4 transition-all duration-300 hover:bg-muted/50 hover:shadow-md hover:shadow-primary/5 hover:scale-[1.02] hover:-translate-y-0.5 cursor-default">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 transition-transform duration-300 group-hover:scale-110">
                     <item.icon className="h-5 w-5 text-yellow-700 dark:text-primary" />
                   </div>
@@ -254,9 +266,9 @@ export function HomeContent() {
 
       {/* CTA Section */}
       <section className="border-t border-border">
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-[1600px] px-6 py-20 sm:px-10 lg:px-16">
           <AnimateOnScroll variant="fade-scale" duration={700}>
-            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-card to-blue-500/10 p-10 sm:p-16">
+            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-card to-blue-500/10 p-10 sm:p-16 transition-all duration-500 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/40">
               <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-primary/5 blur-3xl" />
               <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-blue-500/5 blur-3xl" />
               <div className="relative mx-auto max-w-2xl text-center">
@@ -286,5 +298,6 @@ export function HomeContent() {
         </div>
       </section>
     </>
+    </PageTransition>
   );
 }

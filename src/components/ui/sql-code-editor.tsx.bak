@@ -1,0 +1,608 @@
+"use client";
+
+import { useState, useCallback, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Play,
+  RotateCcw,
+  CheckCircle2,
+  XCircle,
+  Lightbulb,
+  Copy,
+  Check,
+} from "lucide-react";
+
+/* ------------------------------------------------------------------ */
+/*  SQL Keywords & Functions                                           */
+/* ------------------------------------------------------------------ */
+
+const SQL_KEYWORDS = [
+  "SELECT", "FROM", "WHERE", "AND", "OR", "NOT", "IN", "BETWEEN", "LIKE", "IS",
+  "NULL", "AS", "ON", "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "OUTER", "CROSS",
+  "GROUP", "BY", "ORDER", "ASC", "DESC", "HAVING", "LIMIT", "OFFSET", "DISTINCT",
+  "UNION", "ALL", "INTERSECT", "EXCEPT", "EXISTS", "ANY", "SOME",
+  "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "CREATE", "TABLE",
+  "ALTER", "DROP", "INDEX", "VIEW", "MATERIALIZED", "WITH", "RECURSIVE",
+  "CASE", "WHEN", "THEN", "ELSE", "END",
+  "TRUE", "FALSE", "DEFAULT", "PRIMARY", "KEY", "FOREIGN", "REFERENCES",
+  "CONSTRAINT", "UNIQUE", "CHECK", "CASCADE", "NULLS", "FIRST", "LAST",
+  "OVER", "PARTITION", "ROWS", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING",
+  "CURRENT", "ROW", "FILTER", "WITHIN", "GRANT", "REVOKE", "TRUNCATE",
+  "BEGIN", "COMMIT", "ROLLBACK", "SAVEPOINT", "TRANSACTION",
+  "IF", "THEN", "ELSIF", "LOOP", "WHILE", "FOR", "RETURN", "DECLARE",
+  "FETCH", "CURSOR", "OPEN", "CLOSE", "DEALLOCATE",
+  "LATERAL", "TABLESAMPLE", "WINDOW", "GROUPING", "SETS", "ROLLUP", "CUBE",
+  "INCLUDE", "REFRESH", "ANALYZE", "EXPLAIN", "VACUUM",
+];
+
+const SQL_FUNCTIONS = [
+  // Aggregate
+  "COUNT", "SUM", "AVG", "MIN", "MAX", "ARRAY_AGG", "STRING_AGG", "BOOL_AND", "BOOL_OR",
+  // Window
+  "ROW_NUMBER", "RANK", "DENSE_RANK", "NTILE", "LAG", "LEAD",
+  "FIRST_VALUE", "LAST_VALUE", "NTH_VALUE", "PERCENT_RANK", "CUME_DIST",
+  // String
+  "CONCAT", "LENGTH", "UPPER", "LOWER", "TRIM", "LTRIM", "RTRIM",
+  "SUBSTRING", "REPLACE", "POSITION", "LEFT", "RIGHT", "LPAD", "RPAD",
+  "INITCAP", "REVERSE", "REPEAT", "SPLIT_PART", "TRANSLATE", "REGEXP_REPLACE",
+  "REGEXP_MATCH", "REGEXP_MATCHES",
+  // Math
+  "ABS", "CEIL", "CEILING", "FLOOR", "ROUND", "TRUNC", "MOD", "POWER", "SQRT",
+  "LOG", "LN", "EXP", "SIGN", "RANDOM", "PI", "GREATEST", "LEAST",
+  // Date
+  "NOW", "CURRENT_DATE", "CURRENT_TIMESTAMP", "DATE_TRUNC", "DATE_PART",
+  "EXTRACT", "AGE", "INTERVAL", "TO_DATE", "TO_TIMESTAMP", "TO_CHAR",
+  "MAKE_DATE", "MAKE_TIMESTAMP",
+  // Conversion / Type
+  "CAST", "COALESCE", "NULLIF", "GREATEST", "LEAST",
+  // Conditional
+  "CASE", "COALESCE", "NULLIF", "IIF",
+  // JSON
+  "JSON_BUILD_OBJECT", "JSON_AGG", "JSONB_SET", "JSONB_EXTRACT_PATH",
+  // Other
+  "EXISTS", "NOT", "IN", "BETWEEN", "LIKE", "ILIKE", "SIMILAR",
+  "GENERATE_SERIES", "UNNEST", "ARRAY_LENGTH",
+];
+
+const ALL_SQL_IDENTIFIERS = [...new Set([...SQL_KEYWORDS, ...SQL_FUNCTIONS])];
+
+/* ------------------------------------------------------------------ */
+/*  Validation                                                         */
+/* ------------------------------------------------------------------ */
+
+interface ValidationResult {
+  status: "success" | "error" | "warning";
+  message: string;
+  suggestions?: string[];
+  lineErrors?: { line: number; message: string; column?: number; length?: number }[];
+}
+
+function validateSQLCode(code: string): ValidationResult {
+  const trimmed = code.trim();
+
+  if (!trimmed) {
+    return {
+      status: "warning",
+      message: "Empty code. Write a SQL query to validate.",
+    };
+  }
+
+  const errors: { line: number; message: string; column?: number; length?: number }[] = [];
+  const suggestions: string[] = [];
+  const lines = trimmed.split("\n");
+
+  // Remove comments for analysis
+  const codeNoComments = trimmed
+    .replace(/--.*$/gm, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
+
+  // Check parentheses balance
+  let parenCount = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const lineNoComment = lines[i].replace(/--.*$/, "").replace(/'[^']*'/g, "");
+    for (const ch of lineNoComment) {
+      if (ch === "(") parenCount++;
+      if (ch === ")") parenCount--;
+      if (parenCount < 0) {
+        errors.push({ line: i + 1, message: "Unexpected closing parenthesis ')'" });
+        parenCount = 0;
+      }
+    }
+  }
+  if (parenCount > 0) {
+    errors.push({
+      line: lines.length,
+      message: `Missing ${parenCount} closing parenthesis${parenCount > 1 ? "es" : ""} ')'`,
+    });
+  }
+
+  // Check for unclosed string literals
+  let inString = false;
+  for (let i = 0; i < lines.length; i++) {
+    const lineNoComment = lines[i].replace(/--.*$/, "");
+    let quoteCount = 0;
+    for (const ch of lineNoComment) {
+      if (ch === "'") quoteCount++;
+    }
+    // Escaped quotes '' count as 2, so odd count means unclosed
+    if (quoteCount % 2 !== 0) {
+      inString = !inString;
+      if (inString) {
+        // Check if it's closed on this line (multi-line string)
+      }
+    }
+  }
+  if (inString) {
+    errors.push({
+      line: lines.length,
+      message: "Unclosed string literal — missing closing single quote (')",
+    });
+  }
+
+  // Check for common SQL syntax issues per line
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    const lineNoComment = line.replace(/--.*$/, "").trim();
+
+    // Skip empty lines and comments
+    if (!lineNoComment || lineNoComment.startsWith("--")) continue;
+
+    // Trailing comma before FROM, WHERE, GROUP, ORDER, HAVING, JOIN
+    if (/,\s*$/.test(lineNoComment)) {
+      const nextNonEmpty = lines.slice(i + 1).find((l) => l.trim() && !l.trim().startsWith("--"));
+      if (nextNonEmpty && /^\s*(FROM|WHERE|GROUP|ORDER|HAVING|INNER|LEFT|RIGHT|FULL|CROSS|JOIN|ON|LIMIT|OFFSET|UNION|INTERSECT|EXCEPT)\b/i.test(nextNonEmpty)) {
+        errors.push({
+          line: i + 1,
+          message: `Trailing comma before ${nextNonEmpty.trim().split(/\s/)[0].toUpperCase()} — remove the comma`,
+        });
+      }
+    }
+
+    // Double comma
+    if (/,,/.test(lineNoComment)) {
+      errors.push({ line: i + 1, message: "Double comma detected — remove the extra comma" });
+    }
+
+    // SELECT * in production queries
+    if (/\bSELECT\s+\*/i.test(lineNoComment)) {
+      suggestions.push("Line " + (i + 1) + ": SELECT * is not recommended. Specify explicit column names for better performance and clarity.");
+    }
+
+    // Missing alias after subquery
+    if (/\)\s*$/.test(lineNoComment) && i + 1 < lines.length) {
+      const nextLine = lines[i + 1]?.trim() || "";
+      if (/^(WHERE|AND|OR|GROUP|ORDER|HAVING)\b/i.test(nextLine)) {
+        // Fine — subquery in WHERE clause
+      }
+    }
+  }
+
+  // Check for unknown identifiers used as functions
+  const funcCallRegex = /\b([A-Z_][A-Z0-9_]*)\s*\(/gi;
+  let match;
+  const unknownFuncs = new Set<string>();
+  while ((match = funcCallRegex.exec(codeNoComments)) !== null) {
+    const funcName = match[1].toUpperCase();
+    if (!ALL_SQL_IDENTIFIERS.includes(funcName) && !["CTE", "T", "S", "P", "C", "D", "O", "E", "MS", "MA", "OC"].includes(funcName)) {
+      unknownFuncs.add(match[1]);
+    }
+  }
+  if (unknownFuncs.size > 0) {
+    const unknownList = Array.from(unknownFuncs);
+    for (const fn of unknownList) {
+      const similar = findSimilar(fn.toUpperCase(), [...SQL_FUNCTIONS, ...SQL_KEYWORDS]);
+      if (similar) {
+        suggestions.push(`'${fn}' is not a recognized SQL function. Did you mean '${similar}'?`);
+      }
+    }
+    if (suggestions.length === 0 && unknownList.length > 0) {
+      // Only flag if they look like misspelled functions (not table/view names)
+      const suspicious = unknownList.filter((f) => {
+        const sim = findSimilar(f.toUpperCase(), SQL_FUNCTIONS);
+        return sim !== null;
+      });
+      if (suspicious.length > 0) {
+        suggestions.push(
+          `Possible misspelled function(s): ${suspicious.join(", ")}. Check spelling or ensure they're valid.`
+        );
+      }
+    }
+  }
+
+  // Check for GROUP BY without aggregate
+  if (/\bGROUP\s+BY\b/i.test(codeNoComments) && !/\b(COUNT|SUM|AVG|MIN|MAX|ARRAY_AGG|STRING_AGG)\s*\(/i.test(codeNoComments)) {
+    suggestions.push("GROUP BY used without any aggregate function (COUNT, SUM, AVG, etc.). This may be unintentional.");
+  }
+
+  // Check for WHERE with aggregate function
+  const whereMatch = codeNoComments.match(/\bWHERE\b([\s\S]*?)(?:\bGROUP\b|\bORDER\b|\bLIMIT\b|\bHAVING\b|;|$)/i);
+  if (whereMatch) {
+    const whereClause = whereMatch[1];
+    if (/\b(COUNT|SUM|AVG|MIN|MAX)\s*\(/i.test(whereClause)) {
+      suggestions.push("Aggregate function used in WHERE clause. Use HAVING instead — WHERE filters rows before grouping, HAVING filters after.");
+    }
+  }
+
+  // Check missing semicolons for multi-statement
+  const statements = codeNoComments.split(";").filter((s) => s.trim());
+  if (statements.length > 1 && !codeNoComments.trim().endsWith(";")) {
+    suggestions.push("Multiple statements detected but missing trailing semicolon.");
+  }
+
+  // Check for CTE without final SELECT
+  if (/\bWITH\b/i.test(codeNoComments) && !/\)\s*\n?\s*SELECT\b/i.test(codeNoComments) && !/\bAS\s*\(/i.test(codeNoComments) === false) {
+    // Only warn if there's a WITH but structure looks incomplete
+  }
+
+  // Check HAVING without GROUP BY
+  if (/\bHAVING\b/i.test(codeNoComments) && !/\bGROUP\s+BY\b/i.test(codeNoComments)) {
+    errors.push({
+      line: lines.findIndex((l) => /\bHAVING\b/i.test(l)) + 1,
+      message: "HAVING clause without GROUP BY — HAVING filters grouped results",
+    });
+  }
+
+  // Check JOIN without ON
+  const joinLines = lines.map((l, i) => ({ line: l, num: i + 1 })).filter((l) =>
+    /\b(INNER|LEFT|RIGHT|FULL)?\s*JOIN\b/i.test(l.line.replace(/--.*$/, "")) &&
+    !/\bCROSS\s+JOIN\b/i.test(l.line.replace(/--.*$/, "")) &&
+    !/\bNATURAL\b/i.test(l.line.replace(/--.*$/, ""))
+  );
+  for (const jl of joinLines) {
+    const idx = jl.num - 1;
+    const restOfQuery = lines.slice(idx, Math.min(idx + 3, lines.length)).join(" ");
+    if (!/\bON\b/i.test(restOfQuery) && !/\bUSING\b/i.test(restOfQuery)) {
+      errors.push({
+        line: jl.num,
+        message: "JOIN without ON or USING clause — specify the join condition",
+      });
+    }
+  }
+
+  if (errors.length > 0) {
+    return {
+      status: "error",
+      message: `Found ${errors.length} error${errors.length > 1 ? "s" : ""} in your SQL code`,
+      lineErrors: errors,
+      suggestions: suggestions.length > 0 ? suggestions : undefined,
+    };
+  }
+
+  if (suggestions.length > 0) {
+    return {
+      status: "warning",
+      message: "SQL query parsed with suggestions",
+      suggestions,
+    };
+  }
+
+  return {
+    status: "success",
+    message: "SQL query looks valid! No syntax issues detected.",
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Autocomplete Helpers                                               */
+/* ------------------------------------------------------------------ */
+
+function getSQLSuggestions(code: string, cursorPos: number): string[] {
+  // Get the word being typed
+  const beforeCursor = code.slice(0, cursorPos);
+  const wordMatch = beforeCursor.match(/\b([A-Z_][A-Z0-9_]*)$/i);
+  if (!wordMatch) return [];
+
+  const partial = wordMatch[1].toUpperCase();
+  if (partial.length < 2) return [];
+
+  const matches = ALL_SQL_IDENTIFIERS.filter(
+    (kw) => kw.startsWith(partial) && kw !== partial
+  ).slice(0, 8);
+
+  return matches;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Utility                                                            */
+/* ------------------------------------------------------------------ */
+
+function findSimilar(target: string, candidates: string[]): string | null {
+  let bestMatch: string | null = null;
+  let bestDist = Infinity;
+  for (const c of candidates) {
+    const d = levenshtein(target, c);
+    if (d < bestDist && d <= 3) {
+      bestDist = d;
+      bestMatch = c;
+    }
+  }
+  return bestMatch;
+}
+
+function levenshtein(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Sample Code                                                        */
+/* ------------------------------------------------------------------ */
+
+const SAMPLE_SQL = `-- Try writing your SQL code here!
+-- Example: Star schema query with aggregation
+
+SELECT
+    d.year,
+    d.month_name,
+    p.category,
+    COUNT(*) AS transaction_count,
+    SUM(s.quantity) AS total_quantity,
+    SUM(s.quantity * p.unit_price) AS total_revenue
+FROM sales s
+INNER JOIN dim_date d ON s.date_key = d.date_key
+INNER JOIN products p ON s.product_id = p.product_id
+WHERE d.year = 2024
+GROUP BY d.year, d.month_name, p.category
+ORDER BY total_revenue DESC;`;
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
+
+export function SqlCodeEditor() {
+  const [code, setCode] = useState(SAMPLE_SQL);
+  const [result, setResult] = useState<ValidationResult | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleRun = useCallback(() => {
+    setResult(validateSQLCode(code));
+    setShowSuggestions(false);
+  }, [code]);
+
+  const handleReset = () => {
+    setCode(SAMPLE_SQL);
+    setResult(null);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newCode = e.target.value;
+    setCode(newCode);
+    setResult(null);
+
+    // Get autocomplete suggestions
+    const cursorPos = e.target.selectionStart;
+    const sug = getSQLSuggestions(newCode, cursorPos);
+    setSuggestions(sug);
+    setShowSuggestions(sug.length > 0);
+  };
+
+  const applySuggestion = (suggestion: string) => {
+    if (!textareaRef.current) return;
+    const cursorPos = textareaRef.current.selectionStart;
+    const beforeCursor = code.slice(0, cursorPos);
+    const afterCursor = code.slice(cursorPos);
+    const wordMatch = beforeCursor.match(/\b([A-Z_][A-Z0-9_]*)$/i);
+    if (wordMatch) {
+      const newBefore = beforeCursor.slice(0, -wordMatch[1].length) + suggestion;
+      setCode(newBefore + afterCursor);
+      setShowSuggestions(false);
+      // Restore focus
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.selectionStart = newBefore.length;
+          textareaRef.current.selectionEnd = newBefore.length;
+        }
+      }, 0);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (showSuggestions && suggestions.length > 0) {
+      if (e.key === "Tab" || e.key === "Enter") {
+        if (showSuggestions) {
+          e.preventDefault();
+          applySuggestion(suggestions[0]);
+        }
+      }
+      if (e.key === "Escape") {
+        setShowSuggestions(false);
+      }
+    }
+  };
+
+  const lines = code.split("\n");
+  const errorLines = new Set(result?.lineErrors?.map((e) => e.line) ?? []);
+
+  return (
+    <Card className="overflow-hidden border-border">
+      {/* Toolbar */}
+      <CardHeader className="flex flex-row items-center justify-between border-b border-border bg-muted/30 px-4 py-3">
+        <CardTitle className="text-sm font-semibold">SQL Code Editor</CardTitle>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={handleCopy}>
+            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? "Copied" : "Copy"}
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={handleReset}>
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset
+          </Button>
+          <Button size="sm" className="h-8 gap-1.5 text-xs" onClick={handleRun}>
+            <Play className="h-3.5 w-3.5" />
+            Validate
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-0">
+        {/* Editor area */}
+        <div className="relative flex min-h-[280px] font-mono text-sm">
+          {/* Line numbers */}
+          <div className="flex flex-col border-r border-border bg-muted/20 px-3 py-4 text-right text-xs leading-6 text-muted-foreground select-none">
+            {lines.map((_, i) => (
+              <span
+                key={i}
+                className={errorLines.has(i + 1) ? "text-red-500 font-bold" : ""}
+              >
+                {i + 1}
+              </span>
+            ))}
+          </div>
+
+          {/* Code input */}
+          <div className="relative flex-1">
+            <textarea
+              ref={textareaRef}
+              value={code}
+              onChange={handleCodeChange}
+              onKeyDown={handleKeyDown}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+              spellCheck={false}
+              className="h-full w-full resize-none bg-background px-4 py-4 leading-6 text-foreground outline-none placeholder:text-muted-foreground"
+              style={{ tabSize: 4, minHeight: "280px" }}
+              placeholder="Write your SQL query here..."
+            />
+
+            {/* Error line highlights (overlay) */}
+            {result?.lineErrors && result.lineErrors.length > 0 && (
+              <div className="pointer-events-none absolute inset-0 px-4 py-4" aria-hidden>
+                {lines.map((_, i) =>
+                  errorLines.has(i + 1) ? (
+                    <div
+                      key={i}
+                      className="bg-red-500/8 border-l-2 border-red-500 -ml-4 pl-4"
+                      style={{
+                        height: "1.5rem",
+                        marginTop: i === 0 ? 0 : undefined,
+                        position: "absolute",
+                        top: `${i * 1.5}rem`,
+                        left: 0,
+                        right: 0,
+                      }}
+                    />
+                  ) : null
+                )}
+              </div>
+            )}
+
+            {/* Autocomplete dropdown */}
+            {showSuggestions && suggestions.length > 0 && (
+              <div className="absolute left-4 z-50 mt-1 max-h-48 overflow-auto rounded-md border border-border bg-card shadow-lg"
+                style={{ top: `${code.slice(0, textareaRef.current?.selectionStart ?? 0).split("\n").length * 1.5 + 1}rem` }}
+              >
+                {suggestions.map((s, i) => (
+                  <button
+                    key={s}
+                    className={`block w-full px-3 py-1.5 text-left text-xs font-mono transition-colors hover:bg-muted ${
+                      i === 0 ? "bg-muted/50" : ""
+                    }`}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      applySuggestion(s);
+                    }}
+                  >
+                    <span className="text-blue-600 dark:text-blue-400">{s}</span>
+                    <span className="ml-2 text-[10px] text-muted-foreground">
+                      {SQL_KEYWORDS.includes(s) ? "keyword" : "function"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Results panel */}
+        {result && (
+          <div
+            className={`border-t px-4 py-3 ${
+              result.status === "success"
+                ? "border-emerald-500/30 bg-emerald-500/5"
+                : result.status === "error"
+                ? "border-red-500/30 bg-red-500/5"
+                : "border-yellow-500/30 bg-yellow-500/5"
+            }`}
+          >
+            {/* Status header */}
+            <div className="flex items-center gap-2 mb-2">
+              {result.status === "success" ? (
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+              ) : result.status === "error" ? (
+                <XCircle className="h-4 w-4 text-red-500" />
+              ) : (
+                <Lightbulb className="h-4 w-4 text-yellow-500" />
+              )}
+              <span
+                className={`text-sm font-semibold ${
+                  result.status === "success"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : result.status === "error"
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-yellow-600 dark:text-yellow-400"
+                }`}
+              >
+                {result.message}
+              </span>
+            </div>
+
+            {/* Line errors */}
+            {result.lineErrors && result.lineErrors.length > 0 && (
+              <div className="space-y-1 mb-3">
+                {result.lineErrors.map((err, i) => (
+                  <div key={i} className="flex items-start gap-2 text-sm">
+                    <span className="shrink-0 rounded bg-red-500/20 px-1.5 py-0.5 text-[10px] font-bold text-red-600 dark:text-red-400">
+                      Line {err.line}
+                    </span>
+                    <span className="text-muted-foreground">{err.message}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Suggestions */}
+            {result.suggestions && result.suggestions.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground flex items-center gap-1">
+                  <Lightbulb className="h-3 w-3" /> Suggestions
+                </p>
+                {result.suggestions.map((s, i) => (
+                  <div
+                    key={i}
+                    className="rounded-md border border-border bg-card px-3 py-2 text-xs text-muted-foreground whitespace-pre-wrap font-mono"
+                  >
+                    {s}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

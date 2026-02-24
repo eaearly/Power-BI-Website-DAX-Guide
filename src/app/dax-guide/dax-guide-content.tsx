@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { CodeBlock } from "@/components/ui/code-block";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
+import { PageTransition } from "@/components/ui/page-transition";
 import { cn } from "@/lib/utils";
 import {
   Calculator,
@@ -34,15 +36,15 @@ interface DAXFunction {
 }
 
 const categories = [
-  { id: "all", label: "All Functions", icon: Layers },
-  { id: "aggregation", label: "Aggregation", icon: Calculator },
-  { id: "filter", label: "Filter", icon: Filter },
-  { id: "time-intelligence", label: "Time Intelligence", icon: Calendar },
-  { id: "text", label: "Text", icon: Type },
-  { id: "logical", label: "Logical", icon: ListTree },
-  { id: "table", label: "Table", icon: Table2 },
-  { id: "math", label: "Math & Stats", icon: Hash },
-  { id: "information", label: "Information", icon: Search },
+  { id: "all", label: "All Functions", icon: Layers, color: "border-border hover:bg-muted", activeColor: "" },
+  { id: "aggregation", label: "Aggregation", icon: Calculator, color: "border-blue-500/40 bg-blue-500/10 text-blue-700 hover:bg-blue-500/20 dark:text-blue-400", activeColor: "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 border-blue-600" },
+  { id: "filter", label: "Filter", icon: Filter, color: "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-400", activeColor: "bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-600 dark:text-white dark:hover:bg-emerald-700 border-emerald-600" },
+  { id: "time-intelligence", label: "Time Intelligence", icon: Calendar, color: "border-orange-500/40 bg-orange-500/10 text-orange-700 hover:bg-orange-500/20 dark:text-orange-400", activeColor: "bg-orange-600 text-white hover:bg-orange-700 dark:bg-orange-600 dark:text-white dark:hover:bg-orange-700 border-orange-600" },
+  { id: "text", label: "Text", icon: Type, color: "border-purple-500/40 bg-purple-500/10 text-purple-700 hover:bg-purple-500/20 dark:text-purple-400", activeColor: "bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:text-white dark:hover:bg-purple-700 border-purple-600" },
+  { id: "logical", label: "Logical", icon: ListTree, color: "border-rose-500/40 bg-rose-500/10 text-rose-700 hover:bg-rose-500/20 dark:text-rose-400", activeColor: "bg-rose-600 text-white hover:bg-rose-700 dark:bg-rose-600 dark:text-white dark:hover:bg-rose-700 border-rose-600" },
+  { id: "table", label: "Table", icon: Table2, color: "border-cyan-500/40 bg-cyan-500/10 text-cyan-700 hover:bg-cyan-500/20 dark:text-cyan-400", activeColor: "bg-cyan-600 text-white hover:bg-cyan-700 dark:bg-cyan-600 dark:text-white dark:hover:bg-cyan-700 border-cyan-600" },
+  { id: "math", label: "Math & Stats", icon: Hash, color: "border-amber-500/40 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-400", activeColor: "bg-amber-600 text-white hover:bg-amber-700 dark:bg-amber-600 dark:text-white dark:hover:bg-amber-700 border-amber-600" },
+  { id: "information", label: "Information", icon: Search, color: "border-indigo-500/40 bg-indigo-500/10 text-indigo-700 hover:bg-indigo-500/20 dark:text-indigo-400", activeColor: "bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-700 border-indigo-600" },
 ];
 
 const daxFunctions: DAXFunction[] = [
@@ -577,12 +579,37 @@ COUNTROWS( RELATEDTABLE( 'Sales' ) )`,
 ];
 
 /* ------------------------------------------------------------------ */
+/*  Sidebar nav                                                        */
+/* ------------------------------------------------------------------ */
+const sidebarNav = [
+  { id: "what-is-dax", label: "What is DAX?" },
+  { id: "performance", label: "Performance Tips" },
+  { id: "functions", label: "Function Reference" },
+];
+
+/* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
 export function DAXGuideContent() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeSection, setActiveSection] = useState("");
+
+  useEffect(() => {
+    const handler = () => {
+      const ids = sidebarNav.map((s) => s.id);
+      let current = "";
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= 120) current = id;
+      }
+      setActiveSection(current);
+    };
+    window.addEventListener("scroll", handler, { passive: true });
+    handler();
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
 
   const filtered = daxFunctions.filter((fn) => {
     const matchesCategory = activeCategory === "all" || fn.category === activeCategory;
@@ -594,10 +621,11 @@ export function DAXGuideContent() {
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <PageTransition>
+    <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
       {/* Page Header */}
       <AnimateOnScroll variant="fade-up" duration={600}>
-      <div className="mb-10">
+      <div className="mb-10 flex flex-col items-center text-center">
         <Badge variant="dax" className="mb-3">
           <Zap className="mr-1 h-3 w-3" />
           DAX Reference
@@ -610,9 +638,80 @@ export function DAXGuideContent() {
       </div>
       </AnimateOnScroll>
 
+      {/* Search */}
+      <AnimateOnScroll variant="fade-up" delay={50} duration={500}>
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search DAX functions..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="focus-ring w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm placeholder:text-muted-foreground"
+          />
+        </div>
+      </div>
+      </AnimateOnScroll>
+
+      {/* Category Filters */}
+      <AnimateOnScroll variant="fade-up" delay={100} duration={500}>
+      <div className="mb-8 flex flex-wrap gap-2" id="category-filters">
+        {categories.map((cat) => (
+          <Button
+            key={cat.id}
+            variant="outline"
+            size="sm"
+            className={cn(
+              "gap-1.5 transition-all duration-200",
+              activeCategory === cat.id
+                ? (cat.activeColor || "bg-primary text-primary-foreground hover:bg-primary/90 border-primary")
+                : (cat.color || "")
+            )}
+            onClick={() => setActiveCategory(cat.id)}
+          >
+            <cat.icon className="h-3.5 w-3.5" />
+            {cat.label}
+          </Button>
+        ))}
+      </div>
+      </AnimateOnScroll>
+
+      {/* ---- Flex layout: sidebar + main content ---- */}
+      <div className="flex gap-10">
+
+      {/* Sticky sidebar – hidden on small screens */}
+      <aside className="hidden xl:block w-56 shrink-0">
+        <nav className="sticky top-24">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            In this article
+          </p>
+          <ul className="space-y-1 border-l-2 border-border">
+            {sidebarNav.map((item) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  className={cn(
+                    "block border-l-2 -ml-[2px] py-1 pl-4 text-sm transition-colors",
+                    activeSection === item.id
+                      ? "border-primary text-primary font-medium"
+                      : "border-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+
+      {/* Main content */}
+      <div className="min-w-0 flex-1">
+
       {/* Quick Introduction */}
       <AnimateOnScroll variant="fade-up" delay={50}>
-      <Card className="mb-10 border-blue-500/20 bg-blue-500/5">
+      <Card id="what-is-dax" className="scroll-mt-24 mb-10 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5">
         <CardContent className="py-6">
           <h3 className="mb-2 text-lg font-semibold">What is DAX?</h3>
           <p className="text-sm leading-relaxed text-muted-foreground">
@@ -627,7 +726,7 @@ export function DAXGuideContent() {
 
       {/* Performance Tips Card */}
       <AnimateOnScroll variant="fade-up" delay={100}>
-      <Card className="mb-10 border-primary/20 bg-primary/5">
+      <Card id="performance" className="scroll-mt-24 mb-10 border-primary/20 hover:border-primary/40 bg-primary/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-yellow-700 dark:text-primary">
             <Zap className="h-5 w-5" /> DAX Performance Best Practices
@@ -664,49 +763,22 @@ export function DAXGuideContent() {
       </Card>
       </AnimateOnScroll>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search DAX functions..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="focus-ring w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm placeholder:text-muted-foreground"
-          />
-        </div>
-      </div>
-
-      {/* Category Filters */}
-      <div className="mb-8 flex flex-wrap gap-2">
-        {categories.map((cat) => (
-          <Button
-            key={cat.id}
-            variant={activeCategory === cat.id ? "default" : "outline"}
-            size="sm"
-            className="gap-1.5"
-            onClick={() => setActiveCategory(cat.id)}
-          >
-            <cat.icon className="h-3.5 w-3.5" />
-            {cat.label}
-          </Button>
-        ))}
-      </div>
-
+      <section id="functions" className="scroll-mt-24">
       {/* Results count */}
+      <AnimateOnScroll variant="fade-up" delay={120} duration={400}>
       <p className="mb-6 text-sm text-muted-foreground">
         Showing <strong>{filtered.length}</strong> function{filtered.length !== 1 ? "s" : ""}
         {activeCategory !== "all" && (
-          <> in <Badge variant="outline">{categories.find((c) => c.id === activeCategory)?.label}</Badge></>
+          <> in <Badge variant={getCategoryBadge(activeCategory)}>{categories.find((c) => c.id === activeCategory)?.label}</Badge></>
         )}
       </p>
+      </AnimateOnScroll>
 
       {/* Function Cards */}
       <div className="space-y-6">
         {filtered.map((fn, i) => (
           <AnimateOnScroll key={fn.name} variant="fade-up" delay={Math.min(i * 60, 300)}>
-          <Card id={fn.name.toLowerCase().replace(/\s/g, "-")} className="scroll-mt-20 transition-all duration-200 hover:border-primary/20 hover:shadow-md">
+          <Card id={fn.name.toLowerCase().replace(/\s/g, "-")} className={cn("scroll-mt-20 border-l-4 transition-all duration-200 hover:shadow-md", getCategoryBorderColor(fn.category))}>
             <CardHeader>
               <div className="flex flex-wrap items-center gap-2">
                 <CardTitle className="font-mono text-lg">{fn.name}</CardTitle>
@@ -757,18 +829,64 @@ export function DAXGuideContent() {
           </Button>
         </div>
       )}
+      </section>
+
+      {/* Data Visualization Cross-Link */}
+      <AnimateOnScroll variant="fade-up">
+        <Link href="/data-visualization" className="group mt-8 block">
+          <div className="relative overflow-hidden rounded-2xl border border-yellow-500/20 bg-gradient-to-r from-yellow-500/5 via-amber-500/5 to-orange-500/5 p-6 transition-all duration-300 hover:border-yellow-500/40 hover:shadow-lg hover:shadow-yellow-500/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Explore Data Visualization</h3>
+                  <p className="text-sm text-muted-foreground">Learn how to bring your DAX measures to life with Power BI charts, dashboards, and visual best practices.</p>
+                </div>
+              </div>
+              <div className="hidden shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 sm:block">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </AnimateOnScroll>
+
+      </div>{/* end main content */}
+      </div>{/* end flex layout */}
+
     </div>
+    </PageTransition>
   );
 }
 
-/* Helper */
+/* Helper — badge variants */
 function getCategoryBadge(category: string) {
   switch (category) {
-    case "aggregation": return "measure" as const;
-    case "filter": return "dax" as const;
-    case "time-intelligence": return "secondary" as const;
-    case "text": return "accent" as const;
-    case "table": return "column" as const;
+    case "aggregation": return "aggregation" as const;
+    case "filter": return "filter" as const;
+    case "time-intelligence": return "time-intelligence" as const;
+    case "text": return "text" as const;
+    case "logical": return "logical" as const;
+    case "table": return "table" as const;
+    case "math": return "math" as const;
+    case "information": return "information" as const;
     default: return "outline" as const;
+  }
+}
+
+/* Helper — left-border accent on function cards */
+function getCategoryBorderColor(category: string) {
+  switch (category) {
+    case "aggregation": return "border-l-blue-500";
+    case "filter": return "border-l-emerald-500";
+    case "time-intelligence": return "border-l-orange-500";
+    case "text": return "border-l-purple-500";
+    case "logical": return "border-l-rose-500";
+    case "table": return "border-l-cyan-500";
+    case "math": return "border-l-amber-500";
+    case "information": return "border-l-indigo-500";
+    default: return "border-l-border";
   }
 }

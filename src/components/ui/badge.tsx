@@ -14,6 +14,15 @@ const badgeVariants = cva(
         measure: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
         column: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
         dax: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400",
+        // Category-specific badge colors
+        aggregation: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+        filter: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+        "time-intelligence": "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+        text: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+        logical: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+        table: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",
+        math: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+        information: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
       },
     },
     defaultVariants: {

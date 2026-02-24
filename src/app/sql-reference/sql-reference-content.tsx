@@ -1,9 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { CodeBlock } from "@/components/ui/code-block";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
+import { PageTransition } from "@/components/ui/page-transition";
+import { cn } from "@/lib/utils";
 import {
   BookOpen,
   Layers,
@@ -422,12 +426,38 @@ GROUP BY d.year, p.category;
 /* ------------------------------------------------------------------ */
 
 export function SQLReferenceContent() {
+  const [activeSection, setActiveSection] = useState("sql-dax-ref");
+
+  const sidebarItems = [
+    { id: "sql-dax-ref", label: "SQL ↔ DAX Reference" },
+    ...sqlTopics.map((t) => ({ id: t.id, label: t.title })),
+  ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = sidebarItems.map((item) => ({
+        id: item.id,
+        el: document.getElementById(item.id),
+      }));
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = sections[i].el;
+        if (el && el.getBoundingClientRect().top <= 120) {
+          setActiveSection(sections[i].id);
+          break;
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <PageTransition>
+    <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
       {/* Header */}
       <AnimateOnScroll variant="fade-up" duration={600}>
-      <div className="mb-12">
-        <Badge variant="secondary" className="mb-3">
+      <div className="mb-12 flex flex-col items-center text-center">
+        <Badge variant="secondary" className="mb-3 border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400">
           <BookOpen className="mr-1 h-3 w-3" />
           SQL Reference
         </Badge>
@@ -443,10 +473,10 @@ export function SQLReferenceContent() {
 
       {/* Quick Introduction */}
       <AnimateOnScroll variant="fade-up" delay={50}>
-      <Card className="mb-12 border-blue-500/20 bg-blue-500/5">
+      <Card className="mb-12 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5">
         <CardContent className="py-6">
           <h3 className="mb-2 text-lg font-semibold">Quick Introduction</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-sm leading-relaxed text-foreground/80 dark:text-foreground/70">
             <strong className="text-foreground">SQL (Structured Query Language)</strong> is the standard language for communicating with
             relational databases. As a Power BI developer, you&apos;ll encounter SQL when connecting to databases via DirectQuery,
             writing custom SQL queries in Power Query, or optimizing your data source for better report performance.
@@ -457,32 +487,44 @@ export function SQLReferenceContent() {
       </Card>
       </AnimateOnScroll>
 
-      {/* Quick Nav */}
-      <AnimateOnScroll variant="fade-up" delay={100}>
-      <Card className="mb-12">
-        <CardHeader>
-          <CardTitle>Topics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {sqlTopics.map((topic) => (
-              <a
-                key={topic.id}
-                href={`#${topic.id}`}
-                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm transition-colors hover:bg-muted"
-              >
-                <topic.icon className="h-3.5 w-3.5 text-yellow-700 dark:text-primary" />
-                {topic.title}
-              </a>
-            ))}
+      {/* ── Layout: Sidebar + Content ── */}
+      <div className="flex gap-10">
+        {/* Sidebar Navigation — sticky, Microsoft Learn style */}
+        <aside className="hidden w-56 shrink-0 lg:block">
+          <div className="sticky top-24">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              In this article
+            </p>
+            <nav className="flex flex-col gap-0.5 border-l border-border">
+              {sidebarItems.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className={cn(
+                    "-ml-px border-l-2 px-4 py-1.5 text-sm transition-colors",
+                    activeSection === item.id
+                      ? "border-primary font-medium text-foreground"
+                      : "border-transparent text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground"
+                  )}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
           </div>
-        </CardContent>
-      </Card>
-      </AnimateOnScroll>
+        </aside>
+
+        {/* Main Content */}
+        <div className="min-w-0 flex-1 space-y-16">
 
       {/* SQL vs DAX Quick Reference */}
+      <section id="sql-dax-ref" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-up">
-      <Card className="mb-12 border-primary/20 bg-primary/5">
+      <Card className="border-primary/20 hover:border-primary/40 bg-primary/5">
         <CardHeader>
           <CardTitle className="text-yellow-700 dark:text-primary">SQL ↔ DAX Quick Reference</CardTitle>
           <CardDescription>Common equivalents between SQL and DAX</CardDescription>
@@ -497,7 +539,7 @@ export function SQLReferenceContent() {
                   <th className="px-3 py-2 text-left">Notes</th>
                 </tr>
               </thead>
-              <tbody className="text-muted-foreground">
+              <tbody className="text-foreground">
                 {[
                   { sql: "SELECT ... FROM ... WHERE", dax: "CALCULATETABLE / FILTER", note: "Filter context vs row-by-row" },
                   { sql: "GROUP BY + SUM()", dax: "SUMMARIZECOLUMNS", note: "DAX auto-groups in visuals" },
@@ -524,12 +566,12 @@ export function SQLReferenceContent() {
         </CardContent>
       </Card>
       </AnimateOnScroll>
+      </section>
 
       {/* Topics */}
-      <div className="space-y-16">
         {sqlTopics.map((topic) => (
           <AnimateOnScroll key={topic.id} variant="fade-up">
-          <section id={topic.id} className="scroll-mt-20">
+          <section id={topic.id} className="scroll-mt-24">
             <div className="mb-6">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -537,7 +579,7 @@ export function SQLReferenceContent() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold">{topic.title}</h2>
-                  <p className="text-sm text-muted-foreground">{topic.description}</p>
+                  <p className="text-sm text-foreground/70 dark:text-foreground/60">{topic.description}</p>
                 </div>
               </div>
             </div>
@@ -564,7 +606,32 @@ export function SQLReferenceContent() {
           </section>
           </AnimateOnScroll>
         ))}
+
+        {/* Data Visualization Cross-Link */}
+        <AnimateOnScroll variant="fade-up">
+          <Link href="/data-visualization" className="group mt-8 block">
+            <div className="relative overflow-hidden rounded-2xl border border-yellow-500/20 bg-gradient-to-r from-yellow-500/5 via-amber-500/5 to-orange-500/5 p-6 transition-all duration-300 hover:border-yellow-500/40 hover:shadow-lg hover:shadow-yellow-500/5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">Explore Data Visualization</h3>
+                    <p className="text-sm text-muted-foreground">Visualize your SQL query results in Power BI — explore charts, tables, matrices, and dashboard design patterns.</p>
+                  </div>
+                </div>
+                <div className="hidden shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 sm:block">
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </AnimateOnScroll>
+
+        </div>
       </div>
     </div>
+    </PageTransition>
   );
 }

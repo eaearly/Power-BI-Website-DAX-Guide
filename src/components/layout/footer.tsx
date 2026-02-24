@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { LayoutDashboard } from "lucide-react";
+import Image from "next/image";
+import powerBiLogo from "@/logos/microsoft_power-bi.png";
 
 const footerLinks = {
   Documentation: [
@@ -32,10 +33,10 @@ export function Footer() {
           <div className="space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <LayoutDashboard className="h-4.5 w-4.5 text-primary-foreground" />
+                <Image src={powerBiLogo} alt="PowerBIHub" width={20} height={20} className="h-5 w-5 object-contain" />
               </div>
               <span className="text-lg font-bold tracking-tight">
-                PowerBI<span className="text-yellow-700 dark:text-primary"> Guide</span>
+                PowerBI<span className="text-yellow-700 dark:text-primary">Hub</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground">

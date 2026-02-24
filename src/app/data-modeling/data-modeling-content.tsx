@@ -1,9 +1,15 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { CodeBlock } from "@/components/ui/code-block";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
+import { PageTransition } from "@/components/ui/page-transition";
+import { StarSchemaBeam } from "@/components/ui/star-schema-beam";
+import { SnowflakeSchemaBeam } from "@/components/ui/snowflake-schema-beam";
+import { cn } from "@/lib/utils";
 import {
   Database,
   CheckCircle2,
@@ -19,12 +25,44 @@ import {
   Shield,
 } from "lucide-react";
 
+const sidebarNav = [
+  { id: "star-schema", label: "Star Schema Design" },
+  { id: "fact-dimension", label: "Fact vs Dimension Tables" },
+  { id: "relationships", label: "Relationships" },
+  { id: "query-folding", label: "Query Folding" },
+  { id: "snowflake-vs-star", label: "Snowflake vs Star" },
+  { id: "rls", label: "Row-Level Security" },
+  { id: "performance", label: "Performance Optimization" },
+  { id: "anti-patterns", label: "Common Anti-Patterns" },
+];
+
 export function DataModelingContent() {
+  const [activeSection, setActiveSection] = useState("star-schema");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = sidebarNav.map((item) => ({
+        id: item.id,
+        el: document.getElementById(item.id),
+      }));
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = sections[i].el;
+        if (el && el.getBoundingClientRect().top <= 120) {
+          setActiveSection(sections[i].id);
+          break;
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <PageTransition>
+    <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
       {/* Header */}
       <AnimateOnScroll variant="fade-up" duration={600}>
-      <div className="mb-12">
+      <div className="mb-12 flex flex-col items-center text-center">
         <Badge variant="column" className="mb-3">
           <Database className="mr-1 h-3 w-3" />
           Data Architecture
@@ -41,10 +79,10 @@ export function DataModelingContent() {
 
       {/* Quick Introduction */}
       <AnimateOnScroll variant="fade-up" delay={50}>
-      <Card className="mb-12 border-blue-500/20 bg-blue-500/5">
+      <Card className="mb-12 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5">
         <CardContent className="py-6">
           <h3 className="mb-2 text-lg font-semibold">Quick Introduction</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-sm leading-relaxed text-foreground/80 dark:text-foreground/70">
             <strong className="text-foreground">Data Modeling</strong> is the foundation of every Power BI report. It defines how your tables
             relate to each other, how data flows through filters, and how efficiently your reports perform.
             A well-designed data model uses a <em>star schema</em> pattern — with a central fact table surrounded by dimension tables —
@@ -55,37 +93,39 @@ export function DataModelingContent() {
       </Card>
       </AnimateOnScroll>
 
-      {/* Table of Contents */}
-      <AnimateOnScroll variant="fade-up" delay={100}>
-      <Card className="mb-12">
-        <CardHeader>
-          <CardTitle>On This Page</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {[
-              { label: "Star Schema Design", href: "#star-schema", icon: Star },
-              { label: "Fact vs Dimension Tables", href: "#fact-dimension", icon: Table2 },
-              { label: "Relationships", href: "#relationships", icon: Link2 },
-              { label: "Query Folding", href: "#query-folding", icon: Zap },
-              { label: "Snowflake vs Star", href: "#snowflake-vs-star", icon: Network },
-              { label: "Row-Level Security", href: "#rls", icon: Shield },
-              { label: "Performance Optimization", href: "#performance", icon: Layers },
-              { label: "Common Anti-Patterns", href: "#anti-patterns", icon: AlertTriangle },
-            ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted"
-              >
-                <item.icon className="h-4 w-4 text-yellow-700 dark:text-primary" />
-                {item.label}
-              </a>
-            ))}
+      {/* ── Layout: Sidebar + Content ── */}
+      <div className="flex gap-10">
+        {/* Sidebar Navigation — sticky, Microsoft Learn style */}
+        <aside className="hidden w-56 shrink-0 lg:block">
+          <div className="sticky top-24">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              In this article
+            </p>
+            <nav className="flex flex-col gap-0.5 border-l border-border">
+              {sidebarNav.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className={cn(
+                    "-ml-px border-l-2 px-4 py-1.5 text-sm transition-colors",
+                    activeSection === item.id
+                      ? "border-primary font-medium text-foreground"
+                      : "border-transparent text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground"
+                  )}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
           </div>
-        </CardContent>
-      </Card>
-      </AnimateOnScroll>
+        </aside>
+
+        {/* Main Content */}
+        <div className="min-w-0 flex-1 space-y-16">
 
       {/* ============================================================ */}
       {/* STAR SCHEMA */}
@@ -110,145 +150,13 @@ export function DataModelingContent() {
           </p>
         </div>
 
-        {/* Visual Diagram — True Star Layout with SVG connecting lines */}
+        {/* Visual Diagram — AnimatedBeam Star Schema */}
         <Card className="mb-8 overflow-hidden">
           <CardContent className="py-8 sm:py-12">
             <div className="flex flex-col items-center">
-              <p className="mb-8 text-sm font-semibold text-muted-foreground">Star Schema Topology</p>
+              <p className="mb-6 text-sm font-semibold text-muted-foreground">Star Schema Relationship Table</p>
 
-              {/* Star diagram — mobile: stacked grid, desktop: SVG star layout */}
-              {/* Mobile layout */}
-              <div className="flex w-full flex-col items-center gap-3 sm:hidden">
-                {/* Fact table */}
-                <div className="w-full max-w-[280px] rounded-2xl border-2 border-blue-500 bg-blue-500/10 px-5 py-4 text-center shadow-lg shadow-blue-500/10">
-                  <Database className="mx-auto mb-1 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Fact</p>
-                  <p className="text-base font-bold">Sales</p>
-                  <p className="mt-1 text-[10px] text-muted-foreground">OrderID, DateKey, Qty, Amt</p>
-                </div>
-                <p className="text-[10px] font-medium text-muted-foreground">connects to ↓</p>
-                {/* Dimension tables grid */}
-                <div className="grid w-full max-w-[320px] grid-cols-2 gap-2">
-                  {[
-                    { emoji: "📅", name: "Date", detail: "Year, Quarter, Month" },
-                    { emoji: "🏬", name: "Store", detail: "Name, Region, City" },
-                    { emoji: "📦", name: "Product", detail: "Name, Category, Price" },
-                    { emoji: "👤", name: "Customer", detail: "Name, Segment, Email" },
-                    { emoji: "👨‍💼", name: "Employee", detail: "" },
-                    { emoji: "🏷️", name: "Promotion", detail: "" },
-                  ].map((dim) => (
-                    <div key={dim.name} className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-3 py-2 text-center">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                      <p className="text-xs font-semibold">{dim.emoji} {dim.name}</p>
-                      {dim.detail && <p className="text-[9px] text-muted-foreground">{dim.detail}</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Desktop layout */}
-              <div className="relative mx-auto hidden h-[460px] w-full max-w-[520px] sm:block">
-                {/* SVG connector lines */}
-                <svg
-                  className="absolute inset-0 h-full w-full"
-                  viewBox="0 0 520 460"
-                  fill="none"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  {/* Top — Date to center */}
-                  <line x1="260" y1="80" x2="260" y2="190" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-
-                  {/* Bottom — Store to center */}
-                  <line x1="260" y1="270" x2="260" y2="380" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-
-                  {/* Left — Product to center */}
-                  <line x1="120" y1="230" x2="200" y2="230" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-
-                  {/* Right — Customer to center */}
-                  <line x1="320" y1="230" x2="400" y2="230" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-
-                  {/* Top-left — Employee to center */}
-                  <line x1="100" y1="100" x2="210" y2="195" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-
-                  {/* Top-right — Promotion to center */}
-                  <line x1="420" y1="100" x2="310" y2="195" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-
-                  {/* Relationship labels (1:*) */}
-                  <text x="248" y="145" className="fill-yellow-600 dark:fill-yellow-400 text-[10px] font-bold" textAnchor="end">1</text>
-                  <text x="265" y="175" className="fill-blue-500 dark:fill-blue-400 text-[10px] font-bold" textAnchor="start">*</text>
-
-                  <text x="248" y="315" className="fill-yellow-600 dark:fill-yellow-400 text-[10px] font-bold" textAnchor="end">1</text>
-                  <text x="265" y="285" className="fill-blue-500 dark:fill-blue-400 text-[10px] font-bold" textAnchor="start">*</text>
-
-                  <text x="155" y="222" className="fill-yellow-600 dark:fill-yellow-400 text-[10px] font-bold" textAnchor="middle">1</text>
-                  <text x="185" y="245" className="fill-blue-500 dark:fill-blue-400 text-[10px] font-bold" textAnchor="middle">*</text>
-
-                  <text x="365" y="222" className="fill-yellow-600 dark:fill-yellow-400 text-[10px] font-bold" textAnchor="middle">1</text>
-                  <text x="335" y="245" className="fill-blue-500 dark:fill-blue-400 text-[10px] font-bold" textAnchor="middle">*</text>
-                </svg>
-
-                {/* Center — FACT table */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <div className="rounded-2xl border-2 border-blue-500 bg-blue-500/10 px-6 py-5 text-center shadow-lg shadow-blue-500/10 transition-transform duration-300 hover:scale-105">
-                    <Database className="mx-auto mb-1 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Fact</p>
-                    <p className="text-base font-bold">Sales</p>
-                    <p className="mt-1 text-[10px] text-muted-foreground">OrderID, DateKey, Qty, Amt</p>
-                  </div>
-                </div>
-
-                {/* Top — Date dimension */}
-                <div className="absolute left-1/2 top-0 -translate-x-1/2">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-4 py-2.5 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">📅 Date</p>
-                    <p className="text-[10px] text-muted-foreground">Year, Quarter, Month</p>
-                  </div>
-                </div>
-
-                {/* Bottom — Store dimension */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-4 py-2.5 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">🏬 Store</p>
-                    <p className="text-[10px] text-muted-foreground">Name, Region, City</p>
-                  </div>
-                </div>
-
-                {/* Left — Product dimension */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-4 py-2.5 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">📦 Product</p>
-                    <p className="text-[10px] text-muted-foreground">Name, Category, Price</p>
-                  </div>
-                </div>
-
-                {/* Right — Customer dimension */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-4 py-2.5 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">👤 Customer</p>
-                    <p className="text-[10px] text-muted-foreground">Name, Segment, Email</p>
-                  </div>
-                </div>
-
-                {/* Top-left — Employee dimension */}
-                <div className="absolute left-0 top-2">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-3 py-2 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">👨‍💼 Employee</p>
-                  </div>
-                </div>
-
-                {/* Top-right — Promotion dimension */}
-                <div className="absolute right-0 top-2">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-3 py-2 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">🏷️ Promotion</p>
-                  </div>
-                </div>
-              </div>
+              <StarSchemaBeam />
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
@@ -260,7 +168,7 @@ export function DataModelingContent() {
                   <span>Dimension Table</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <svg width="24" height="2"><line x1="0" y1="1" x2="24" y2="1" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2" className="text-emerald-500/60" /></svg>
+                  <div className="h-1 w-6 rounded-full bg-gradient-to-r from-emerald-500 to-blue-500" />
                   <span>1:* Relationship</span>
                 </div>
               </div>
@@ -285,7 +193,7 @@ export function DataModelingContent() {
         </h2>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Card className="border-blue-500/20">
+          <Card className="border-blue-500/20 hover:border-blue-500/40">
             <CardHeader>
               <CardTitle className="text-blue-500">Fact Tables</CardTitle>
               <CardDescription>Store measurable business events</CardDescription>
@@ -324,7 +232,7 @@ export function DataModelingContent() {
             </CardContent>
           </Card>
 
-          <Card className="border-emerald-500/20">
+          <Card className="border-emerald-500/20 hover:border-emerald-500/40">
             <CardHeader>
               <CardTitle className="text-emerald-500">Dimension Tables</CardTitle>
               <CardDescription>Describe the context of business events</CardDescription>
@@ -458,7 +366,7 @@ CALCULATE(
           Query Folding
         </h2>
 
-        <Card className="mb-6 border-primary/20 bg-primary/5">
+        <Card className="mb-6 border-primary/20 hover:border-primary/40 bg-primary/5">
           <CardContent className="py-6">
             <p className="text-center text-lg">
               <strong className="text-yellow-700 dark:text-primary">Query Folding</strong> is the ability of Power Query to translate
@@ -523,7 +431,7 @@ CALCULATE(
           <CardHeader>
             <CardTitle>How to Verify Query Folding</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <CardContent className="space-y-3 text-sm text-foreground/80 dark:text-foreground/70">
             <ol className="list-decimal space-y-2 pl-5">
               <li>In Power Query Editor, right-click on a step</li>
               <li>If &quot;View Native Query&quot; is available and not grayed out → <strong className="text-accent">folding is active</strong></li>
@@ -579,202 +487,13 @@ CALCULATE(
           </table>
         </div>
 
-        {/* Snowflake Schema Visual Diagram */}
+        {/* Snowflake Schema Visual Diagram — AnimatedBeam */}
         <Card className="mb-8 overflow-hidden">
           <CardContent className="py-8 sm:py-12">
             <div className="flex flex-col items-center">
-              <p className="mb-8 text-sm font-semibold text-muted-foreground">❄️ Snowflake Schema Topology</p>
+              <p className="mb-6 text-sm font-semibold text-muted-foreground">❄️ Snowflake Schema Relationship Table</p>
 
-              {/* Mobile layout */}
-              <div className="flex w-full flex-col items-center gap-3 sm:hidden">
-                {/* Fact table */}
-                <div className="w-full max-w-[280px] rounded-2xl border-2 border-blue-500 bg-blue-500/10 px-5 py-4 text-center shadow-lg shadow-blue-500/10">
-                  <Database className="mx-auto mb-1 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Fact</p>
-                  <p className="text-base font-bold">Sales</p>
-                  <p className="mt-1 text-[10px] text-muted-foreground">OrderID, DateKey, Qty, Amt</p>
-                </div>
-                <p className="text-[10px] font-medium text-muted-foreground">connects to ↓</p>
-                {/* Dimension tables */}
-                <div className="grid w-full max-w-[320px] grid-cols-2 gap-2">
-                  {[
-                    { emoji: "📅", name: "Date", detail: "DateKey, MonthID" },
-                    { emoji: "📦", name: "Product", detail: "ProductKey, SubCatID" },
-                    { emoji: "👤", name: "Customer", detail: "CustKey, CityID" },
-                    { emoji: "🏬", name: "Store", detail: "StoreKey, RegionID" },
-                  ].map((dim) => (
-                    <div key={dim.name} className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-3 py-2 text-center">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                      <p className="text-xs font-semibold">{dim.emoji} {dim.name}</p>
-                      <p className="text-[9px] text-muted-foreground">{dim.detail}</p>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[10px] font-medium text-muted-foreground">→ further normalized into ↓</p>
-                {/* Sub-dimension tables */}
-                <div className="grid w-full max-w-[320px] grid-cols-2 gap-2">
-                  {[
-                    { emoji: "📆", name: "Month", detail: "MonthID, Quarter, Year" },
-                    { emoji: "🏷️", name: "Subcategory", detail: "SubCatID, CatID" },
-                    { emoji: "🏙️", name: "City", detail: "CityID, StateID" },
-                    { emoji: "🌍", name: "Region", detail: "RegionID, Country" },
-                    { emoji: "📁", name: "Category", detail: "CategoryID, Dept" },
-                    { emoji: "🗺️", name: "State", detail: "StateID, Country" },
-                  ].map((sub) => (
-                    <div key={sub.name} className="rounded-xl border-2 border-purple-500/50 bg-purple-500/5 px-3 py-2 text-center">
-                      <p className="text-[9px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Sub-Dim</p>
-                      <p className="text-xs font-semibold">{sub.emoji} {sub.name}</p>
-                      <p className="text-[9px] text-muted-foreground">{sub.detail}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Desktop snowflake layout */}
-              <div className="relative mx-auto hidden h-[580px] w-full max-w-[700px] sm:block">
-                {/* SVG connector lines — plain lines only, no dots */}
-                <svg
-                  className="absolute inset-0 h-full w-full"
-                  viewBox="0 0 700 580"
-                  fill="none"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  {/* Fact → Date (up) */}
-                  <line x1="350" y1="250" x2="350" y2="112" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-                  {/* Fact → Product (left) */}
-                  <line x1="290" y1="290" x2="155" y2="290" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-                  {/* Fact → Customer (right) */}
-                  <line x1="410" y1="290" x2="545" y2="290" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-                  {/* Fact → Store (down) */}
-                  <line x1="350" y1="340" x2="350" y2="460" stroke="currentColor" strokeWidth="2" className="text-emerald-500/60 dark:text-emerald-400/50" strokeDasharray="6 3" />
-
-                  {/* Date → Month (sub-dim, up-left) */}
-                  <line x1="310" y1="75" x2="190" y2="30" stroke="currentColor" strokeWidth="2" className="text-purple-500/60 dark:text-purple-400/50" strokeDasharray="4 3" />
-
-                  {/* Product → Subcategory (sub-dim, left-up) */}
-                  <line x1="90" y1="260" x2="55" y2="175" stroke="currentColor" strokeWidth="2" className="text-purple-500/60 dark:text-purple-400/50" strokeDasharray="4 3" />
-                  {/* Subcategory → Category (sub-dim, further-left) */}
-                  <line x1="55" y1="130" x2="55" y2="65" stroke="currentColor" strokeWidth="2" className="text-purple-500/60 dark:text-purple-400/50" strokeDasharray="4 3" />
-
-                  {/* Customer → City (sub-dim, right-up) */}
-                  <line x1="610" y1="260" x2="645" y2="175" stroke="currentColor" strokeWidth="2" className="text-purple-500/60 dark:text-purple-400/50" strokeDasharray="4 3" />
-                  {/* City → State (sub-dim, further-right) */}
-                  <line x1="645" y1="130" x2="645" y2="65" stroke="currentColor" strokeWidth="2" className="text-purple-500/60 dark:text-purple-400/50" strokeDasharray="4 3" />
-
-                  {/* Store → Region (sub-dim, down) */}
-                  <line x1="310" y1="500" x2="190" y2="545" stroke="currentColor" strokeWidth="2" className="text-purple-500/60 dark:text-purple-400/50" strokeDasharray="4 3" />
-
-                  {/* Relationship labels */}
-                  <text x="340" y="185" className="fill-yellow-600 dark:fill-yellow-400 text-[10px] font-bold" textAnchor="end">1</text>
-                  <text x="360" y="240" className="fill-blue-500 dark:fill-blue-400 text-[10px] font-bold" textAnchor="start">*</text>
-                  <text x="220" y="280" className="fill-yellow-600 dark:fill-yellow-400 text-[10px] font-bold" textAnchor="end">1</text>
-                  <text x="225" y="305" className="fill-blue-500 dark:fill-blue-400 text-[10px] font-bold" textAnchor="start">*</text>
-                  <text x="475" y="280" className="fill-yellow-600 dark:fill-yellow-400 text-[10px] font-bold" textAnchor="end">1</text>
-                  <text x="480" y="305" className="fill-blue-500 dark:fill-blue-400 text-[10px] font-bold" textAnchor="start">*</text>
-                  <text x="340" y="400" className="fill-yellow-600 dark:fill-yellow-400 text-[10px] font-bold" textAnchor="end">1</text>
-                  <text x="360" y="360" className="fill-blue-500 dark:fill-blue-400 text-[10px] font-bold" textAnchor="start">*</text>
-                </svg>
-
-                {/* Center — FACT table */}
-                <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                  <div className="rounded-2xl border-2 border-blue-500 bg-blue-500/10 px-6 py-5 text-center shadow-lg shadow-blue-500/10 transition-transform duration-300 hover:scale-105">
-                    <Database className="mx-auto mb-1 h-5 w-5 text-blue-600 dark:text-blue-400" />
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Fact</p>
-                    <p className="text-base font-bold">Sales</p>
-                    <p className="mt-1 text-[10px] text-muted-foreground">OrderID, DateKey, Qty, Amt</p>
-                  </div>
-                </div>
-
-                {/* Top — Date dimension */}
-                <div className="absolute left-1/2 top-[50px] -translate-x-1/2">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-4 py-2.5 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">📅 Date</p>
-                    <p className="text-[10px] text-muted-foreground">DateKey, MonthID</p>
-                  </div>
-                </div>
-
-                {/* Top-left — Month sub-dimension */}
-                <div className="absolute left-[80px] top-0">
-                  <div className="rounded-xl border-2 border-purple-500/50 bg-purple-500/5 px-3 py-2 text-center transition-transform duration-300 hover:scale-105 hover:border-purple-500">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Sub-Dim</p>
-                    <p className="text-xs font-semibold">📆 Month</p>
-                    <p className="text-[9px] text-muted-foreground">Quarter, Year</p>
-                  </div>
-                </div>
-
-                {/* Left — Product dimension */}
-                <div className="absolute left-[10px] top-[255px]">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-4 py-2.5 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">📦 Product</p>
-                    <p className="text-[10px] text-muted-foreground">Name, SubCatID</p>
-                  </div>
-                </div>
-
-                {/* Left-up — Subcategory sub-dimension */}
-                <div className="absolute left-0 top-[130px]">
-                  <div className="rounded-xl border-2 border-purple-500/50 bg-purple-500/5 px-3 py-2 text-center transition-transform duration-300 hover:scale-105 hover:border-purple-500">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Sub-Dim</p>
-                    <p className="text-xs font-semibold">🏷️ Subcategory</p>
-                    <p className="text-[9px] text-muted-foreground">SubCatID, CatID</p>
-                  </div>
-                </div>
-
-                {/* Far left-up — Category sub-dimension */}
-                <div className="absolute left-0 top-[20px]">
-                  <div className="rounded-xl border-2 border-purple-500/50 bg-purple-500/5 px-3 py-2 text-center transition-transform duration-300 hover:scale-105 hover:border-purple-500">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Sub-Dim</p>
-                    <p className="text-xs font-semibold">📁 Category</p>
-                    <p className="text-[9px] text-muted-foreground">CategoryID, Dept</p>
-                  </div>
-                </div>
-
-                {/* Right — Customer dimension */}
-                <div className="absolute right-[10px] top-[255px]">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-4 py-2.5 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">👤 Customer</p>
-                    <p className="text-[10px] text-muted-foreground">Name, CityID</p>
-                  </div>
-                </div>
-
-                {/* Right-up — City sub-dimension */}
-                <div className="absolute right-0 top-[130px]">
-                  <div className="rounded-xl border-2 border-purple-500/50 bg-purple-500/5 px-3 py-2 text-center transition-transform duration-300 hover:scale-105 hover:border-purple-500">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Sub-Dim</p>
-                    <p className="text-xs font-semibold">🏙️ City</p>
-                    <p className="text-[9px] text-muted-foreground">CityID, StateID</p>
-                  </div>
-                </div>
-
-                {/* Far right-up — State sub-dimension */}
-                <div className="absolute right-0 top-[20px]">
-                  <div className="rounded-xl border-2 border-purple-500/50 bg-purple-500/5 px-3 py-2 text-center transition-transform duration-300 hover:scale-105 hover:border-purple-500">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Sub-Dim</p>
-                    <p className="text-xs font-semibold">🗺️ State</p>
-                    <p className="text-[9px] text-muted-foreground">StateID, Country</p>
-                  </div>
-                </div>
-
-                {/* Bottom — Store dimension */}
-                <div className="absolute bottom-[50px] left-1/2 -translate-x-1/2">
-                  <div className="rounded-xl border-2 border-emerald-500/50 bg-emerald-500/5 px-4 py-2.5 text-center transition-transform duration-300 hover:scale-105 hover:border-emerald-500">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Dim</p>
-                    <p className="text-sm font-semibold">🏬 Store</p>
-                    <p className="text-[10px] text-muted-foreground">Name, RegionID</p>
-                  </div>
-                </div>
-
-                {/* Bottom-left — Region sub-dimension */}
-                <div className="absolute bottom-0 left-[80px]">
-                  <div className="rounded-xl border-2 border-purple-500/50 bg-purple-500/5 px-3 py-2 text-center transition-transform duration-300 hover:scale-105 hover:border-purple-500">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Sub-Dim</p>
-                    <p className="text-xs font-semibold">🌍 Region</p>
-                    <p className="text-[9px] text-muted-foreground">RegionID, Country</p>
-                  </div>
-                </div>
-              </div>
+              <SnowflakeSchemaBeam />
 
               <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
@@ -790,7 +509,7 @@ CALCULATE(
                   <span>Sub-Dimension Table</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <svg width="24" height="2"><line x1="0" y1="1" x2="24" y2="1" stroke="currentColor" strokeWidth="2" strokeDasharray="4 2" className="text-emerald-500/60" /></svg>
+                  <div className="h-1 w-6 rounded-full bg-gradient-to-r from-purple-500 via-emerald-500 to-blue-500" />
                   <span>1:* Relationship</span>
                 </div>
               </div>
@@ -963,7 +682,7 @@ FILTER(
               fix: "Create a separate Date dimension with a continuous date range and mark it as a Date table.",
             },
           ].map((item) => (
-            <Card key={item.pattern} className="border-destructive/20">
+            <Card key={item.pattern} className="border-destructive/20 hover:border-destructive/40">
               <CardContent className="py-4">
                 <div className="flex items-start gap-3">
                   <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
@@ -981,6 +700,32 @@ FILTER(
         </div>
         </AnimateOnScroll>
       </section>
+
+      {/* Data Visualization Cross-Link */}
+      <AnimateOnScroll variant="fade-up">
+        <Link href="/data-visualization" className="group mt-8 block">
+          <div className="relative overflow-hidden rounded-2xl border border-yellow-500/20 bg-gradient-to-r from-yellow-500/5 via-amber-500/5 to-orange-500/5 p-6 transition-all duration-300 hover:border-yellow-500/40 hover:shadow-lg hover:shadow-yellow-500/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Explore Data Visualization</h3>
+                  <p className="text-sm text-muted-foreground">See how your data models come alive — explore chart types, dashboard layouts, and visual design patterns in Power BI.</p>
+                </div>
+              </div>
+              <div className="hidden shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 sm:block">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </AnimateOnScroll>
+
+        </div>
+      </div>
     </div>
+    </PageTransition>
   );
 }

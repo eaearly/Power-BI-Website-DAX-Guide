@@ -1,9 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { CodeBlock } from "@/components/ui/code-block";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
+import { PageTransition } from "@/components/ui/page-transition";
+import { cn } from "@/lib/utils";
 import {
   BarChart3,
   CheckCircle2,
@@ -30,16 +34,49 @@ const comparisonRows = [
   { aspect: "Recalculation", measure: "Every query / interaction", column: "Only on data refresh" },
 ];
 
+const sidebarNav = [
+  { id: "definitions", label: "Definitions" },
+  { id: "comparison", label: "Comparison Table" },
+  { id: "eval-context", label: "Evaluation Context" },
+  { id: "context-transition", label: "Context Transition" },
+  { id: "decision-guide", label: "Decision Guide" },
+  { id: "common-mistakes", label: "Common Mistakes" },
+  { id: "create-measures", label: "How to Create Measures" },
+  { id: "create-columns", label: "How to Create Columns" },
+  { id: "functions-ref", label: "Functions Reference" },
+];
+
 /* ------------------------------------------------------------------ */
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
 export function MeasuresVsColumnsContent() {
+  const [activeSection, setActiveSection] = useState("definitions");
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = sidebarNav.map((item) => ({
+        id: item.id,
+        el: document.getElementById(item.id),
+      }));
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = sections[i].el;
+        if (el && el.getBoundingClientRect().top <= 120) {
+          setActiveSection(sections[i].id);
+          break;
+        }
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <PageTransition>
+    <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
       {/* Header */}
       <AnimateOnScroll variant="fade-up" duration={600}>
-      <div className="mb-12">
+      <div className="mb-12 flex flex-col items-center text-center">
         <Badge variant="measure" className="mb-3">
           <BarChart3 className="mr-1 h-3 w-3" />
           Core Concepts
@@ -56,7 +93,7 @@ export function MeasuresVsColumnsContent() {
 
       {/* Quick Introduction */}
       <AnimateOnScroll variant="fade-up" delay={50}>
-      <Card className="mb-12 border-blue-500/20 bg-blue-500/5">
+      <Card className="mb-12 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5">
         <CardContent className="py-6">
           <h3 className="mb-2 text-lg font-semibold">Quick Introduction</h3>
           <p className="text-sm leading-relaxed text-muted-foreground">
@@ -72,7 +109,7 @@ export function MeasuresVsColumnsContent() {
 
       {/* Quick Rule */}
       <AnimateOnScroll variant="fade-up" delay={100}>
-      <Card className="mb-12 border-primary/20 bg-primary/5">
+      <Card className="mb-12 border-primary/20 hover:border-primary/40 bg-primary/5">
         <CardContent className="py-6">
           <p className="text-center text-lg font-semibold">
             <Zap className="mr-2 inline h-5 w-5 text-yellow-700 dark:text-primary" />
@@ -84,11 +121,44 @@ export function MeasuresVsColumnsContent() {
       </Card>
       </AnimateOnScroll>
 
+      {/* ── Layout: Sidebar + Content ── */}
+      <div className="flex gap-10">
+        <aside className="hidden w-56 shrink-0 lg:block">
+          <div className="sticky top-24">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              In this article
+            </p>
+            <nav className="flex max-h-[calc(100vh-8rem)] flex-col gap-0.5 overflow-y-auto border-l border-border pr-2">
+              {sidebarNav.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className={cn(
+                    "-ml-px border-l-2 px-4 py-1.5 text-sm transition-colors",
+                    activeSection === item.id
+                      ? "border-primary font-medium text-foreground"
+                      : "border-transparent text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground"
+                  )}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </aside>
+
+        <div className="min-w-0 flex-1 space-y-12">
+
       {/* Side-by-side Definition Cards */}
+      <section id="definitions" className="scroll-mt-24">
       <div className="mb-12 grid gap-6 md:grid-cols-2">
         {/* Measure Card */}
         <AnimateOnScroll variant="fade-right" delay={0}>
-        <Card className="border-blue-500/20">
+        <Card className="border-blue-500/20 hover:border-blue-500/40">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/10">
@@ -155,7 +225,7 @@ RETURN
 
         {/* Calculated Column Card */}
         <AnimateOnScroll variant="fade-left" delay={100}>
-        <Card className="border-emerald-500/20">
+        <Card className="border-emerald-500/20 hover:border-emerald-500/40">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/10">
@@ -218,8 +288,10 @@ SWITCH(
         </Card>
         </AnimateOnScroll>
       </div>
+      </section>
 
       {/* Comparison Table */}
+      <section id="comparison" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-up">
       <div className="mb-12">
         <h2 className="mb-6 text-2xl font-bold">Side-by-Side Comparison</h2>
@@ -249,8 +321,10 @@ SWITCH(
         </div>
       </div>
       </AnimateOnScroll>
+      </section>
 
       {/* Evaluation Context Deep-Dive */}
+      <section id="eval-context" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-up">
       <div className="mb-12">
         <h2 className="mb-6 text-2xl font-bold">Understanding Evaluation Context</h2>
@@ -338,10 +412,12 @@ SUMX(
         </div>
       </div>
       </AnimateOnScroll>
+      </section>
 
       {/* Context Transition */}
+      <section id="context-transition" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-scale">
-      <Card className="mb-12 border-yellow-500/20 bg-yellow-500/5">
+      <Card className="mb-12 border-yellow-500/20 hover:border-yellow-500/40 bg-yellow-500/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
@@ -381,15 +457,17 @@ SUMX(
         </CardContent>
       </Card>
       </AnimateOnScroll>
+      </section>
 
       {/* When To Use What */}
+      <section id="decision-guide" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-up">
       <div className="mb-12">
         <h2 className="mb-6 text-2xl font-bold">Decision Guide: When To Use What</h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Use a Measure */}
-          <Card className="border-blue-500/20">
+          <Card className="border-blue-500/20 hover:border-blue-500/40">
             <CardHeader>
               <CardTitle className="text-blue-500">✅ Use a Measure When…</CardTitle>
             </CardHeader>
@@ -414,7 +492,7 @@ SUMX(
           </Card>
 
           {/* Use a Calculated Column */}
-          <Card className="border-emerald-500/20">
+          <Card className="border-emerald-500/20 hover:border-emerald-500/40">
             <CardHeader>
               <CardTitle className="text-emerald-500">✅ Use a Calculated Column When…</CardTitle>
             </CardHeader>
@@ -440,8 +518,10 @@ SUMX(
         </div>
       </div>
       </AnimateOnScroll>
+      </section>
 
       {/* Common Mistakes */}
+      <section id="common-mistakes" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-up">
       <div className="mb-12">
         <h2 className="mb-6 text-2xl font-bold"><span className="text-emerald-600 dark:text-emerald-400">Common Mistakes to Avoid</span></h2>
@@ -481,10 +561,12 @@ SUMX(
         </div>
       </div>
       </AnimateOnScroll>
+      </section>
 
       {/* ============================================================ */}
       {/* HOW TO CREATE NEW MEASURES                                    */}
       {/* ============================================================ */}
+      <section id="create-measures" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-up">
       <div className="mb-16">
         <h2 className="mb-2 text-3xl font-bold">
@@ -496,7 +578,7 @@ SUMX(
         </p>
 
         {/* Step 1: Basic Aggregation Measures */}
-        <Card className="mb-6 border-blue-500/20">
+        <Card className="mb-6 border-blue-500/20 hover:border-blue-500/40">
           <CardHeader>
             <CardTitle className="text-blue-500">1. Basic Aggregation Measures</CardTitle>
             <CardDescription>The foundation — SUM, AVERAGE, COUNT, MIN, MAX</CardDescription>
@@ -528,7 +610,7 @@ Last Order Date  = MAX( 'Sales'[OrderDate] )`}
         </Card>
 
         {/* Step 2: CALCULATE Measures */}
-        <Card className="mb-6 border-blue-500/20">
+        <Card className="mb-6 border-blue-500/20 hover:border-blue-500/40">
           <CardHeader>
             <CardTitle className="text-blue-500">2. Filtered Measures with CALCULATE</CardTitle>
             <CardDescription>Modify the filter context to create conditional measures</CardDescription>
@@ -575,7 +657,7 @@ DIVIDE(
         </Card>
 
         {/* Step 3: Iterator (X) Measures */}
-        <Card className="mb-6 border-blue-500/20">
+        <Card className="mb-6 border-blue-500/20 hover:border-blue-500/40">
           <CardHeader>
             <CardTitle className="text-blue-500">3. Iterator Functions (SUMX, AVERAGEX, COUNTX, MINX, MAXX)</CardTitle>
             <CardDescription>Row-by-row evaluation for complex expressions</CardDescription>
@@ -616,7 +698,7 @@ MAXX( 'Sales', RELATED( 'Product'[UnitPrice] ) )`}
         </Card>
 
         {/* Step 4: Time Intelligence */}
-        <Card className="mb-6 border-blue-500/20">
+        <Card className="mb-6 border-blue-500/20 hover:border-blue-500/40">
           <CardHeader>
             <CardTitle className="text-blue-500">4. Time Intelligence Measures</CardTitle>
             <CardDescription>Year-to-date, year-over-year, rolling averages, and more</CardDescription>
@@ -675,7 +757,7 @@ CALCULATE(
         </Card>
 
         {/* Step 5: Advanced Techniques */}
-        <Card className="mb-6 border-blue-500/20">
+        <Card className="mb-6 border-blue-500/20 hover:border-blue-500/40">
           <CardHeader>
             <CardTitle className="text-blue-500">5. Advanced Measure Techniques</CardTitle>
             <CardDescription>Variables, SWITCH, ranking, dynamic formatting, and KPIs</CardDescription>
@@ -743,10 +825,12 @@ DIVIDE(
         </Card>
       </div>
       </AnimateOnScroll>
+      </section>
 
       {/* ============================================================ */}
       {/* HOW TO CREATE NEW COLUMNS                                     */}
       {/* ============================================================ */}
+      <section id="create-columns" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-up">
       <div className="mb-16">
         <h2 className="mb-2 text-3xl font-bold">
@@ -758,7 +842,7 @@ DIVIDE(
         </p>
 
         {/* Step 1: Basic Calculated Columns */}
-        <Card className="mb-6 border-emerald-500/20">
+        <Card className="mb-6 border-emerald-500/20 hover:border-emerald-500/40">
           <CardHeader>
             <CardTitle className="text-emerald-500">1. Basic Calculated Columns</CardTitle>
             <CardDescription>Row-level computations and concatenation</CardDescription>
@@ -794,7 +878,7 @@ FORMAT( 'Sales'[OrderDate], "MMM YYYY" )`}
         </Card>
 
         {/* Step 2: RELATED Columns */}
-        <Card className="mb-6 border-emerald-500/20">
+        <Card className="mb-6 border-emerald-500/20 hover:border-emerald-500/40">
           <CardHeader>
             <CardTitle className="text-emerald-500">2. Lookup Values with RELATED()</CardTitle>
             <CardDescription>Pull data from related dimension tables into fact tables</CardDescription>
@@ -826,7 +910,7 @@ Extended Price =
         </Card>
 
         {/* Step 3: Classification Columns */}
-        <Card className="mb-6 border-emerald-500/20">
+        <Card className="mb-6 border-emerald-500/20 hover:border-emerald-500/40">
           <CardHeader>
             <CardTitle className="text-emerald-500">3. Classification & Bucketing Columns</CardTitle>
             <CardDescription>IF, SWITCH, and conditional logic for grouping rows</CardDescription>
@@ -874,7 +958,7 @@ IF(
         </Card>
 
         {/* Step 4: Composite Keys & Sorting Columns */}
-        <Card className="mb-6 border-emerald-500/20">
+        <Card className="mb-6 border-emerald-500/20 hover:border-emerald-500/40">
           <CardHeader>
             <CardTitle className="text-emerald-500">4. Composite Keys & Sorting Columns</CardTitle>
             <CardDescription>Build relationship keys and custom sort orders</CardDescription>
@@ -908,9 +992,12 @@ YEAR( 'Date'[Date] ) * 100 + MONTH( 'Date'[Date] )`}
       </div>
       </AnimateOnScroll>
 
+      </section>
+
       {/* ============================================================ */}
       {/* ALL DAX FUNCTIONS & TECHNIQUES REFERENCE                      */}
       {/* ============================================================ */}
+      <section id="functions-ref" className="scroll-mt-24">
       <AnimateOnScroll variant="fade-up">
       <div className="mb-16">
         <h2 className="mb-2 text-3xl font-bold">
@@ -1182,6 +1269,33 @@ YEAR( 'Date'[Date] ) * 100 + MONTH( 'Date'[Date] )`}
         </div>
       </div>
       </AnimateOnScroll>
+      </section>
+
+      {/* Data Visualization Cross-Link */}
+      <AnimateOnScroll variant="fade-up">
+        <Link href="/data-visualization" className="group mt-8 block">
+          <div className="relative overflow-hidden rounded-2xl border border-yellow-500/20 bg-gradient-to-r from-yellow-500/5 via-amber-500/5 to-orange-500/5 p-6 transition-all duration-300 hover:border-yellow-500/40 hover:shadow-lg hover:shadow-yellow-500/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold text-foreground">Explore Data Visualization</h3>
+                  <p className="text-sm text-muted-foreground">See how measures and columns power your Power BI visuals — charts, KPIs, conditional formatting, and more.</p>
+                </div>
+              </div>
+              <div className="hidden shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 sm:block">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+              </div>
+            </div>
+          </div>
+        </Link>
+      </AnimateOnScroll>
+
+        </div>
+      </div>
     </div>
+    </PageTransition>
   );
 }

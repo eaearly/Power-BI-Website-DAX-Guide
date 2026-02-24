@@ -4,7 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Github, Mail, Loader2, Eye, EyeOff, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Mail, Loader2, Eye, EyeOff, ArrowRight, CheckCircle2 } from "lucide-react";
+import { motion } from "motion/react";
+import Image from "next/image";
+import powerBiLogo from "@/logos/microsoft_power-bi.png";
 
 export function SignupForm() {
   const router = useRouter();
@@ -47,7 +50,13 @@ export function SignupForm() {
       });
 
       if (signUpError) {
-        setError(signUpError.message);
+        if (signUpError.message?.includes("rate limit")) {
+          setError("Too many signup attempts. Please wait a few minutes and try again.");
+        } else if (signUpError.message?.toLowerCase().includes("already registered")) {
+          setError("An account with this email already exists. Try logging in instead.");
+        } else {
+          setError(signUpError.message);
+        }
       } else {
         setSuccess(true);
       }
@@ -74,7 +83,12 @@ export function SignupForm() {
 
   if (success) {
     return (
-      <div className="w-full max-w-md space-y-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-8 shadow-xl">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
+      <div className="w-full max-w-lg space-y-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-8 shadow-xl">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
             <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
@@ -96,12 +110,21 @@ export function SignupForm() {
           <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
+      </motion.div>
     );
   }
 
   return (
-    <div className="w-full max-w-md space-y-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-8 shadow-xl">
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+    >
+    <div className="w-full max-w-lg space-y-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-8 shadow-xl transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:border-[var(--color-primary)]/20">
       <div className="text-center">
+        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-primary overflow-hidden">
+          <Image src={powerBiLogo} alt="PowerBIHub" width={32} height={32} className="object-contain" />
+        </div>
         <h1 className="text-2xl font-bold text-[var(--color-foreground)]">Create an Account</h1>
         <p className="mt-1 text-sm text-[var(--color-muted-foreground)]">
           Join PowerBIHub to bookmark functions and save notes
@@ -113,15 +136,17 @@ export function SignupForm() {
         <button
           type="button"
           onClick={() => handleOAuthSignup("github")}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 text-sm font-medium text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 text-sm font-medium text-[var(--color-foreground)] transition-all duration-300 hover:bg-[var(--color-muted)] hover:shadow-sm hover:border-[var(--color-primary)]/30 hover:-translate-y-0.5"
         >
-          <Github className="h-5 w-5" />
+          <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+          </svg>
           Continue with GitHub
         </button>
         <button
           type="button"
           onClick={() => handleOAuthSignup("google")}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 text-sm font-medium text-[var(--color-foreground)] transition-colors hover:bg-[var(--color-muted)]"
+          className="flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 text-sm font-medium text-[var(--color-foreground)] transition-all duration-300 hover:bg-[var(--color-muted)] hover:shadow-sm hover:border-[var(--color-primary)]/30 hover:-translate-y-0.5"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path
@@ -262,5 +287,6 @@ export function SignupForm() {
         </Link>
       </p>
     </div>
+    </motion.div>
   );
 }
