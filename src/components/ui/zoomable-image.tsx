@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { AnimatePresence } from "motion/react";
 import { ZoomIn, ZoomOut, RotateCcw, X } from "lucide-react";
 
 interface ZoomableImageProps {
@@ -18,8 +17,6 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imgError, setImgError] = useState(false);
-  const [fadeIn, setFadeIn] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const MIN_SCALE = 0.5;
   const MAX_SCALE = 5;
@@ -29,50 +26,37 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
     setIsOpen(true);
     setScale(1);
     setPosition({ x: 0, y: 0 });
-    // Trigger CSS fade-in on next frame
-    requestAnimationFrame(() => setFadeIn(true));
   };
 
   const handleClose = useCallback(() => {
-    setFadeIn(false);
-    // Wait for fade-out, then unmount
-    setTimeout(() => {
-      setIsOpen(false);
-      setScale(1);
-      setPosition({ x: 0, y: 0 });
-    }, 200);
+    setIsOpen(false);
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
   }, []);
 
-  const handleZoomIn = () => {
-    setScale((prev) => Math.min(prev + ZOOM_STEP, MAX_SCALE));
-  };
-
-  const handleZoomOut = () => {
-    setScale((prev) => {
-      const newScale = Math.max(prev - ZOOM_STEP, MIN_SCALE);
-      if (newScale <= 1) setPosition({ x: 0, y: 0 });
-      return newScale;
+  const handleZoomIn = () => setScale((p) => Math.min(p + ZOOM_STEP, MAX_SCALE));
+  const handleZoomOut = () =>
+    setScale((p) => {
+      const n = Math.max(p - ZOOM_STEP, MIN_SCALE);
+      if (n <= 1) setPosition({ x: 0, y: 0 });
+      return n;
     });
-  };
-
   const handleReset = () => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
   };
 
-  // Mouse wheel zoom
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
     e.stopPropagation();
     const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
-    setScale((prev) => {
-      const newScale = Math.max(MIN_SCALE, Math.min(prev + delta, MAX_SCALE));
-      if (newScale <= 1) setPosition({ x: 0, y: 0 });
-      return newScale;
+    setScale((p) => {
+      const n = Math.max(MIN_SCALE, Math.min(p + delta, MAX_SCALE));
+      if (n <= 1) setPosition({ x: 0, y: 0 });
+      return n;
     });
   }, []);
 
-  // Pan/drag — only when zoomed beyond 100%
   const handleMouseDown = (e: React.MouseEvent) => {
     if (scale <= 1) return;
     e.preventDefault();
@@ -88,9 +72,7 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
     [isDragging, dragStart]
   );
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+  const handleMouseUp = useCallback(() => setIsDragging(false), []);
 
   useEffect(() => {
     if (isDragging) {
@@ -105,11 +87,9 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
 
   useEffect(() => {
     if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleClose();
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    const h = (e: KeyboardEvent) => { if (e.key === "Escape") handleClose(); };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
   }, [isOpen, handleClose]);
 
   useEffect(() => {
@@ -140,7 +120,7 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
 
   return (
     <>
-      {/* Thumbnail — smaller, centered, click to preview */}
+      {/* Thumbnail — smaller, centered */}
       <figure
         className="group relative mx-auto max-w-md overflow-hidden rounded-lg border border-border bg-muted/30 transition-[box-shadow,border-color] hover:shadow-lg hover:border-primary/30 cursor-pointer"
         onClick={handleOpen}
@@ -167,20 +147,26 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
         )}
       </figure>
 
-      {/* Fullscreen viewer — pure CSS centering, no Framer Motion conflicts */}
+      {/* ─── Fullscreen viewer ─── */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[9999]"
-          style={{ opacity: fadeIn ? 1 : 0, transition: "opacity 0.2s ease" }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 99999,
+            display: "grid",
+            placeItems: "center",
+            backgroundColor: "rgba(0,0,0,0.92)",
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={(e) => {
+            // Close only when clicking the backdrop itself, not the image or toolbar
+            if (e.target === e.currentTarget) handleClose();
+          }}
+          onWheel={handleWheel}
         >
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/90 backdrop-blur-sm"
-            onClick={handleClose}
-          />
-
-          {/* Toolbar — top-right */}
-          <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+          {/* Toolbar — fixed top-right */}
+          <div style={{ position: "fixed", top: 16, right: 16, zIndex: 100000, display: "flex", gap: 8 }}>
             <div className="flex items-center gap-1 rounded-lg bg-black/60 p-1 backdrop-blur-sm border border-white/10">
               <button onClick={handleZoomOut} disabled={scale <= MIN_SCALE} className="rounded-md p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed" title="Zoom out">
                 <ZoomOut className="h-4 w-4" />
@@ -199,45 +185,45 @@ export function ZoomableImage({ src, alt, className, caption }: ZoomableImagePro
             </button>
           </div>
 
-          {/* Scroll hint */}
+          {/* Hint */}
           {scale <= 1 && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 rounded-full bg-black/50 px-4 py-2 text-xs text-white/60 backdrop-blur-sm border border-white/10">
-              Scroll to zoom &middot; Click outside to close
+            <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 100000 }}
+              className="rounded-full bg-black/50 px-4 py-2 text-xs text-white/60 backdrop-blur-sm border border-white/10"
+            >
+              Scroll to zoom · Click outside to close
             </div>
           )}
 
-          {/* Image container — absolutely centered using inset-0 + flex */}
-          <div
-            ref={containerRef}
-            className="absolute inset-0 flex items-center justify-center"
-            style={{
-              cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "default",
-            }}
-            onWheel={handleWheel}
+          {/* The image — grid child, auto-centered by place-items: center */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt={alt}
+            draggable={false}
             onMouseDown={handleMouseDown}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={src}
-              alt={alt}
-              className="rounded-lg shadow-2xl select-none pointer-events-none"
-              style={{
-                maxWidth: "60vw",
-                maxHeight: "60vh",
-                width: "auto",
-                height: "auto",
-                objectFit: "contain",
-                transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
-                transition: isDragging ? "none" : "transform 0.2s ease-out",
-                transformOrigin: "center center",
-              }}
-              draggable={false}
-            />
-          </div>
+            style={{
+              maxWidth: "70vw",
+              maxHeight: "70vh",
+              width: "auto",
+              height: "auto",
+              objectFit: "contain",
+              borderRadius: 8,
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
+              userSelect: "none",
+              cursor: scale > 1 ? (isDragging ? "grabbing" : "grab") : "default",
+              transform: scale === 1 && position.x === 0 && position.y === 0
+                ? "none"
+                : `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+              transition: isDragging ? "none" : "transform 0.2s ease-out",
+              transformOrigin: "center center",
+            }}
+          />
 
           {/* Caption */}
           {caption && (
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 max-w-lg rounded-lg bg-black/60 px-4 py-2.5 text-sm text-white text-center backdrop-blur-sm border border-white/10">
+            <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 100000, maxWidth: 500 }}
+              className="rounded-lg bg-black/60 px-4 py-2.5 text-sm text-white text-center backdrop-blur-sm border border-white/10"
+            >
               {caption}
             </div>
           )}

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
 import { PageTransition } from "@/components/ui/page-transition";
 import { ZoomableImage } from "@/components/ui/zoomable-image";
+import { LazySection } from "@/components/ui/lazy-section";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -691,7 +692,7 @@ export function DataVisualizationContent() {
             </section>
 
             {/* ════════════ CREATING REPORTS ════════════ */}
-            <section id="create-report" className="scroll-mt-24">
+            <LazySection id="create-report" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={BookOpen}
@@ -747,10 +748,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ BUILDING DASHBOARDS ════════════ */}
-            <section id="dashboards" className="scroll-mt-24">
+            <LazySection id="dashboards" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={LayoutDashboard}
@@ -829,8 +830,8 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
-            <section id="vis-pane" className="scroll-mt-24">
+            </LazySection>
+            <LazySection id="vis-pane" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={Eye}
@@ -871,10 +872,10 @@ export function DataVisualizationContent() {
                   ))}
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ COMPARISON CHARTS ════════════ */}
-            <section id="comparison" className="scroll-mt-24">
+            <LazySection id="comparison" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={BarChart3}
@@ -902,8 +903,8 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
-            <section id="trend" className="scroll-mt-24">
+            </LazySection>
+            <LazySection id="trend" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={TrendingUp}
@@ -931,8 +932,8 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
-            <section id="part-whole" className="scroll-mt-24">
+            </LazySection>
+            <LazySection id="part-whole" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={PieChart}
@@ -960,8 +961,8 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
-            <section id="distribution" className="scroll-mt-24">
+            </LazySection>
+            <LazySection id="distribution" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={BarChart3}
@@ -989,8 +990,8 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
-            <section id="tables-matrices" className="scroll-mt-24">
+            </LazySection>
+            <LazySection id="tables-matrices" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={Table2}
@@ -1018,10 +1019,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ CARDS, KPI & GAUGES ════════════ */}
-            <section id="cards-kpis" className="scroll-mt-24">
+            <LazySection id="cards-kpis" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={CreditCard}
@@ -1049,10 +1050,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ MAPS & SPATIAL ════════════ */}
-            <section id="maps" className="scroll-mt-24">
+            <LazySection id="maps" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={Map}
@@ -1080,10 +1081,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ AI VISUALS ════════════ */}
-            <section id="ai-visuals" className="scroll-mt-24">
+            <LazySection id="ai-visuals" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={BrainCircuit}
@@ -1111,10 +1112,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ SLICERS & FILTERING ════════════ */}
-            <section id="slicers" className="scroll-mt-24">
+            <LazySection id="slicers" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={SlidersHorizontal}
@@ -1192,10 +1193,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ BOOKMARKS & NAVIGATION ════════════ */}
-            <section id="bookmarks" className="scroll-mt-24">
+            <LazySection id="bookmarks" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={Bookmark}
@@ -1261,10 +1262,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ FORMATTING VISUALS ════════════ */}
-            <section id="formatting" className="scroll-mt-24">
+            <LazySection id="formatting" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={Palette}
@@ -1332,10 +1333,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ CUSTOM VISUALS ════════════ */}
-            <section id="custom-visuals" className="scroll-mt-24">
+            <LazySection id="custom-visuals" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={Puzzle}
@@ -1392,10 +1393,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ METRICS & SCORECARDS ════════════ */}
-            <section id="scorecards" className="scroll-mt-24">
+            <LazySection id="scorecards" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={Target}
@@ -1467,10 +1468,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ PUBLISHING ════════════ */}
-            <section id="publish" className="scroll-mt-24">
+            <LazySection id="publish" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={FileUp}
@@ -1545,10 +1546,10 @@ export function DataVisualizationContent() {
                   />
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* ════════════ BEST PRACTICES ════════════ */}
-            <section id="best-practices" className="scroll-mt-24">
+            <LazySection id="best-practices" className="scroll-mt-24">
               <AnimateOnScroll variant="fade-up">
                 <SectionHeader
                   icon={Zap}
@@ -1642,7 +1643,7 @@ export function DataVisualizationContent() {
                   ))}
                 </div>
               </AnimateOnScroll>
-            </section>
+            </LazySection>
 
             {/* Related Content */}
             <AnimateOnScroll variant="fade-up">
