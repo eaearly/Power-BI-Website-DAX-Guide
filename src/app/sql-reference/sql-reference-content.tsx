@@ -633,7 +633,7 @@ export function SQLReferenceContent() {
                     const Icon = item.icon;
                     return (
                       <Link key={item.href} href={item.href} className="group block">
-                        <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
+                        <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-[border-color,background-color,box-shadow] duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                             <Icon className="h-5 w-5" />
                           </div>

@@ -177,175 +177,175 @@ const quickLinks = [
 export function ResourcesContent() {
   return (
     <PageTransition>
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
-      {/* Hero Section */}
-      <AnimateOnScroll variant="fade-up">
-        <div className="mb-16 text-center">
-          <Badge variant="outline" className="mb-4 border-primary/40 text-yellow-700 dark:text-primary">
-            Learning Resources
-          </Badge>
-          <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-            References &amp;{" "}
-            <span className="text-yellow-700 dark:text-primary">Resources</span>
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            Curated collection of the best resources, documentation, and learning platforms to
-            master Power BI, DAX, SQL, and data analytics.
-          </p>
-        </div>
-      </AnimateOnScroll>
-
-      {/* Resource Cards Grid */}
-      <div className="mb-20 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {resources.map((resource, index) => (
-          <AnimateOnScroll
-            key={resource.name}
-            variant="fade-up"
-            delay={index * 80}
-          >
-            <a
-              href={resource.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block h-full"
-            >
-              <Card
-                className={`relative h-full overflow-hidden border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${resource.borderColor}`}
-              >
-                {/* Gradient background */}
-                <div
-                  className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${resource.color} opacity-60 transition-opacity duration-300 group-hover:opacity-100`}
-                />
-
-                <CardHeader className="relative">
-                  <div className="mb-3 flex items-center justify-between">
-                    <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-xl border border-border/50 bg-background/80 backdrop-blur-sm ${resource.iconColor}`}
-                    >
-                      <resource.icon className="h-5 w-5" />
-                    </div>
-                    <Badge variant="secondary" className="text-xs font-medium">
-                      {resource.category}
-                    </Badge>
-                  </div>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    {resource.name}
-                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0.5" />
-                  </CardTitle>
-                  <CardDescription className="line-clamp-3 text-sm leading-relaxed">
-                    {resource.description}
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="relative pt-0">
-                  <div className="flex flex-wrap gap-1.5">
-                    {resource.highlights.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-md border border-border/50 bg-muted/60 px-2 py-0.5 text-xs text-muted-foreground"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </a>
-          </AnimateOnScroll>
-        ))}
-      </div>
-
-      {/* Quick Links Section */}
-      <AnimateOnScroll variant="fade-up">
-        <div className="rounded-2xl border border-border bg-card/50 p-8 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
-          <h2 className="mb-6 text-center text-2xl font-bold">
-            More{" "}
-            <span className="text-yellow-700 dark:text-primary">Quick Links</span>
-          </h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {quickLinks.map((link, index) => (
-              <AnimateOnScroll key={link.name} variant="fade-up" delay={index * 60}>
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-center gap-3 rounded-lg border border-border/50 bg-background/60 px-4 py-3 transition-all duration-300 hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm hover:-translate-y-0.5"
-                >
-                  <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-yellow-700 dark:group-hover:text-primary" />
-                  <span className="text-sm font-medium text-foreground">
-                    {link.name}
-                  </span>
-                </a>
-              </AnimateOnScroll>
-            ))}
+      <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
+        {/* Hero Section */}
+        <AnimateOnScroll variant="fade-up">
+          <div className="mb-16 text-center">
+            <Badge variant="outline" className="mb-4 border-primary/40 text-yellow-700 dark:text-primary">
+              Learning Resources
+            </Badge>
+            <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              References &amp;{" "}
+              <span className="text-yellow-700 dark:text-primary">Resources</span>
+            </h1>
+            <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
+              Curated collection of the best resources, documentation, and learning platforms to
+              master Power BI, DAX, SQL, and data analytics.
+            </p>
           </div>
-        </div>
-      </AnimateOnScroll>
+        </AnimateOnScroll>
 
-      {/* Disclaimer */}
-      <AnimateOnScroll variant="fade-up" delay={100}>
-        <p className="mt-10 text-center text-xs text-muted-foreground">
-          These resources are provided for educational reference. All trademarks belong to their
-          respective owners. Links open in a new tab.
-        </p>
-      </AnimateOnScroll>
-
-      {/* Developer Contact Section */}
-      <AnimateOnScroll variant="fade-up" delay={150}>
-        <Separator className="my-10" />
-        <div className="mx-auto max-w-xl">
-          <Card className="relative overflow-hidden border border-border/60 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/20 hover:-translate-y-1">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-amber-500/5 dark:from-yellow-500/3 dark:to-amber-500/3" />
-            <CardHeader className="relative pb-3 text-center">
-              <CardTitle className="text-lg font-semibold">
-                Found a Bug or Have Feedback?
-              </CardTitle>
-              <CardDescription className="text-sm leading-relaxed">
-                If you encounter any corrections, bugs, or issues on this website,
-                feel free to contact the developer.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="relative pt-0">
-              <div className="flex flex-col items-center gap-4">
-                {/* Developer Avatar */}
-                <div className="relative h-20 w-20 overflow-hidden rounded-full shadow-lg shadow-yellow-500/20 ring-2 ring-yellow-500/20 ring-offset-2 ring-offset-background">
-                  <Image src={devPhoto} alt="Earl Justine Simbajon" fill className="object-cover" />
-                </div>
-                <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5">
-                  <span className="text-sm font-medium text-yellow-700 dark:text-primary">
-                    Earl Justine Simbajon
-                  </span>
-                </div>
-                {/* Clickable email */}
-                <a
-                  href="mailto:justinesimbajon9@gmail.com"
-                  className="group inline-flex items-center gap-2 rounded-md border border-border/50 bg-background/60 px-3 py-1.5 text-sm text-muted-foreground transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:text-yellow-700 dark:hover:text-primary"
+        {/* Resource Cards Grid */}
+        <div className="mb-20 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {resources.map((resource, index) => (
+            <AnimateOnScroll
+              key={resource.name}
+              variant="fade-up"
+              delay={index * 80}
+            >
+              <a
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group block h-full"
+              >
+                <Card
+                  className={`relative h-full overflow-hidden border transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-lg ${resource.borderColor}`}
                 >
-                  <Mail className="h-3.5 w-3.5" />
-                  justinesimbajon9@gmail.com
-                </a>
-                <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
-                  <span className="inline-flex items-center gap-1">
-                    <Bug className="h-3 w-3" />
-                    Bug Reports
-                  </span>
-                  <span className="text-border">|</span>
-                  <span className="inline-flex items-center gap-1">
-                    <MessageCircle className="h-3 w-3" />
-                    Suggestions
-                  </span>
-                  <span className="text-border">|</span>
-                  <span className="inline-flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    Corrections
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  {/* Gradient background */}
+                  <div
+                    className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${resource.color} opacity-60 transition-opacity duration-300 group-hover:opacity-100`}
+                  />
+
+                  <CardHeader className="relative">
+                    <div className="mb-3 flex items-center justify-between">
+                      <div
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl border border-border/50 bg-background/80 backdrop-blur-sm ${resource.iconColor}`}
+                      >
+                        <resource.icon className="h-5 w-5" />
+                      </div>
+                      <Badge variant="secondary" className="text-xs font-medium">
+                        {resource.category}
+                      </Badge>
+                    </div>
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      {resource.name}
+                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground opacity-0 transition-[opacity,transform] duration-200 group-hover:opacity-100 group-hover:translate-x-0.5" />
+                    </CardTitle>
+                    <CardDescription className="line-clamp-3 text-sm leading-relaxed">
+                      {resource.description}
+                    </CardDescription>
+                  </CardHeader>
+
+                  <CardContent className="relative pt-0">
+                    <div className="flex flex-wrap gap-1.5">
+                      {resource.highlights.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-md border border-border/50 bg-muted/60 px-2 py-0.5 text-xs text-muted-foreground"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </a>
+            </AnimateOnScroll>
+          ))}
         </div>
-      </AnimateOnScroll>
-    </div>
+
+        {/* Quick Links Section */}
+        <AnimateOnScroll variant="fade-up">
+          <div className="rounded-2xl border border-border bg-card/50 p-8 transition-[box-shadow,border-color] duration-300 hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
+            <h2 className="mb-6 text-center text-2xl font-bold">
+              More{" "}
+              <span className="text-yellow-700 dark:text-primary">Quick Links</span>
+            </h2>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {quickLinks.map((link, index) => (
+                <AnimateOnScroll key={link.name} variant="fade-up" delay={index * 60}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-3 rounded-lg border border-border/50 bg-background/60 px-4 py-3 transition-[border-color,background-color,box-shadow,transform] duration-300 hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm hover:-translate-y-0.5"
+                  >
+                    <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-yellow-700 dark:group-hover:text-primary" />
+                    <span className="text-sm font-medium text-foreground">
+                      {link.name}
+                    </span>
+                  </a>
+                </AnimateOnScroll>
+              ))}
+            </div>
+          </div>
+        </AnimateOnScroll>
+
+        {/* Disclaimer */}
+        <AnimateOnScroll variant="fade-up" delay={100}>
+          <p className="mt-10 text-center text-xs text-muted-foreground">
+            These resources are provided for educational reference. All trademarks belong to their
+            respective owners. Links open in a new tab.
+          </p>
+        </AnimateOnScroll>
+
+        {/* Developer Contact Section */}
+        <AnimateOnScroll variant="fade-up" delay={150}>
+          <Separator className="my-10" />
+          <div className="mx-auto max-w-xl">
+            <Card className="relative overflow-hidden border border-border/60 bg-card/50 backdrop-blur-sm transition-[box-shadow,border-color,transform] duration-300 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/20 hover:-translate-y-1 transform-gpu">
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-amber-500/5 dark:from-yellow-500/3 dark:to-amber-500/3" />
+              <CardHeader className="relative pb-3 text-center">
+                <CardTitle className="text-lg font-semibold">
+                  Found a Bug or Have Feedback?
+                </CardTitle>
+                <CardDescription className="text-sm leading-relaxed">
+                  If you encounter any corrections, bugs, or issues on this website,
+                  feel free to contact the developer.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative pt-0">
+                <div className="flex flex-col items-center gap-4">
+                  {/* Developer Avatar */}
+                  <div className="relative h-20 w-20 overflow-hidden rounded-full shadow-lg shadow-yellow-500/20 ring-2 ring-yellow-500/20 ring-offset-2 ring-offset-background">
+                    <Image src={devPhoto} alt="Earl Justine Simbajon" fill className="object-cover" />
+                  </div>
+                  <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5">
+                    <span className="text-sm font-medium text-yellow-700 dark:text-primary">
+                      Earl Justine Simbajon
+                    </span>
+                  </div>
+                  {/* Clickable email */}
+                  <a
+                    href="mailto:justinesimbajon9@gmail.com"
+                    className="group inline-flex items-center gap-2 rounded-md border border-border/50 bg-background/60 px-3 py-1.5 text-sm text-muted-foreground transition-[border-color,background-color,color] duration-200 hover:border-primary/40 hover:bg-primary/5 hover:text-yellow-700 dark:hover:text-primary"
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                    justinesimbajon9@gmail.com
+                  </a>
+                  <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
+                      <Bug className="h-3 w-3" />
+                      Bug Reports
+                    </span>
+                    <span className="text-border">|</span>
+                    <span className="inline-flex items-center gap-1">
+                      <MessageCircle className="h-3 w-3" />
+                      Suggestions
+                    </span>
+                    <span className="text-border">|</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      Corrections
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </AnimateOnScroll>
+      </div>
     </PageTransition>
   );
 }

@@ -95,309 +95,309 @@ interface VisualType {
 /* ── Data Arrays (module scope — never recreated) ── */
 
 const createReportSteps: Step[] = [
-    {
-      step: 1,
-      title: "Connect to Your Data Source",
-      description:
-        "Open Power BI Desktop and click 'Get Data' from the Home ribbon. Choose your data source — SQL Server, Excel, SharePoint, Web, or 200+ other connectors. Enter your connection details and credentials.",
-      tip: "Use DirectQuery for real-time data or Import mode for cached, fast performance.",
-    },
-    {
-      step: 2,
-      title: "Transform Data in Power Query",
-      description:
-        "The Power Query Editor opens automatically. Clean and shape your data: remove unnecessary columns, filter rows, change data types, merge queries, and create custom columns. Every transformation is recorded as a step you can edit later.",
-      tip: "Keep transformations as close to the source as possible for query folding optimization.",
-    },
-    {
-      step: 3,
-      title: "Build Your Data Model",
-      description:
-        "Switch to the Model view to define relationships between tables. Create a star schema with fact tables at the center and dimension tables around them. Set relationship cardinality (one-to-many) and cross-filter direction.",
-      tip: "Always use a dedicated Date table and mark it as a Date table for time intelligence to work.",
-    },
-    {
-      step: 4,
-      title: "Create Measures with DAX",
-      description:
-        "Switch to the Report view. Right-click your fact table and select 'New Measure'. Write DAX formulas like Total Sales = SUM('Sales'[Amount]). Measures calculate dynamically based on the user's filter context in the report.",
-      tip: "Use VAR/RETURN to break complex measures into readable, debuggable steps.",
-    },
-    {
-      step: 5,
-      title: "Design Your Report Page",
-      description:
-        "Drag fields onto the canvas to create visuals. Choose from bar charts, line charts, tables, cards, maps, and more. Use the Format pane to customize colors, fonts, labels, and conditional formatting. Arrange visuals in a clear, logical layout.",
-      tip: "Start with a KPI card row at the top, then detailed charts below. Keep it clean — less is more.",
-    },
-    {
-      step: 6,
-      title: "Add Interactivity with Slicers and Filters",
-      description:
-        "Add slicer visuals for date ranges, categories, and regions. Configure visual interactions so clicking one chart filters the others. Use bookmarks to create toggle states and drillthrough pages for detail views.",
-    },
-  ];
+  {
+    step: 1,
+    title: "Connect to Your Data Source",
+    description:
+      "Open Power BI Desktop and click 'Get Data' from the Home ribbon. Choose your data source — SQL Server, Excel, SharePoint, Web, or 200+ other connectors. Enter your connection details and credentials.",
+    tip: "Use DirectQuery for real-time data or Import mode for cached, fast performance.",
+  },
+  {
+    step: 2,
+    title: "Transform Data in Power Query",
+    description:
+      "The Power Query Editor opens automatically. Clean and shape your data: remove unnecessary columns, filter rows, change data types, merge queries, and create custom columns. Every transformation is recorded as a step you can edit later.",
+    tip: "Keep transformations as close to the source as possible for query folding optimization.",
+  },
+  {
+    step: 3,
+    title: "Build Your Data Model",
+    description:
+      "Switch to the Model view to define relationships between tables. Create a star schema with fact tables at the center and dimension tables around them. Set relationship cardinality (one-to-many) and cross-filter direction.",
+    tip: "Always use a dedicated Date table and mark it as a Date table for time intelligence to work.",
+  },
+  {
+    step: 4,
+    title: "Create Measures with DAX",
+    description:
+      "Switch to the Report view. Right-click your fact table and select 'New Measure'. Write DAX formulas like Total Sales = SUM('Sales'[Amount]). Measures calculate dynamically based on the user's filter context in the report.",
+    tip: "Use VAR/RETURN to break complex measures into readable, debuggable steps.",
+  },
+  {
+    step: 5,
+    title: "Design Your Report Page",
+    description:
+      "Drag fields onto the canvas to create visuals. Choose from bar charts, line charts, tables, cards, maps, and more. Use the Format pane to customize colors, fonts, labels, and conditional formatting. Arrange visuals in a clear, logical layout.",
+    tip: "Start with a KPI card row at the top, then detailed charts below. Keep it clean — less is more.",
+  },
+  {
+    step: 6,
+    title: "Add Interactivity with Slicers and Filters",
+    description:
+      "Add slicer visuals for date ranges, categories, and regions. Configure visual interactions so clicking one chart filters the others. Use bookmarks to create toggle states and drillthrough pages for detail views.",
+  },
+];
 
-  const publishSteps: Step[] = [
-    {
-      step: 1,
-      title: "Save Your Report",
-      description:
-        "Save your .pbix file locally. Ensure all data connections are working and the report has no errors. Review each page for visual alignment and data accuracy.",
-    },
-    {
-      step: 2,
-      title: "Sign In to Power BI Service",
-      description:
-        "In Power BI Desktop, click 'Publish' on the Home ribbon. Sign in with your organizational Microsoft 365 account. You need a Power BI Pro or Premium Per User license to publish.",
-    },
-    {
-      step: 3,
-      title: "Select a Workspace",
-      description:
-        "Choose the destination workspace. Use 'My Workspace' for personal reports or a shared workspace for team collaboration. Workspaces on Premium capacity enable additional features like paginated reports and deployment pipelines.",
-      tip: "Create separate workspaces for Development, Test, and Production using deployment pipelines.",
-    },
-    {
-      step: 4,
-      title: "Configure Scheduled Refresh",
-      description:
-        "In the Power BI service, go to Dataset Settings. Configure a data gateway if connecting to on-premises data. Set up scheduled refresh (up to 8 times daily with Pro, 48 with Premium). Enter data source credentials.",
-    },
-    {
-      step: 5,
-      title: "Create a Dashboard",
-      description:
-        "Open your published report in the Power BI service. Hover over a visual, click the pin icon, and pin it to a new or existing dashboard. Dashboards show live tiles from multiple reports on a single page.",
-      tip: "Dashboards are unique to Power BI service — they don't exist in Desktop. Use them for executive summaries.",
-    },
-    {
-      step: 6,
-      title: "Share and Distribute",
-      description:
-        "Share directly with users by entering their email, or create a Power BI App to package multiple reports, dashboards, and datasets. Set row-level security (RLS) to restrict data access by user role. Configure subscriptions for automated email reports.",
-    },
-  ];
+const publishSteps: Step[] = [
+  {
+    step: 1,
+    title: "Save Your Report",
+    description:
+      "Save your .pbix file locally. Ensure all data connections are working and the report has no errors. Review each page for visual alignment and data accuracy.",
+  },
+  {
+    step: 2,
+    title: "Sign In to Power BI Service",
+    description:
+      "In Power BI Desktop, click 'Publish' on the Home ribbon. Sign in with your organizational Microsoft 365 account. You need a Power BI Pro or Premium Per User license to publish.",
+  },
+  {
+    step: 3,
+    title: "Select a Workspace",
+    description:
+      "Choose the destination workspace. Use 'My Workspace' for personal reports or a shared workspace for team collaboration. Workspaces on Premium capacity enable additional features like paginated reports and deployment pipelines.",
+    tip: "Create separate workspaces for Development, Test, and Production using deployment pipelines.",
+  },
+  {
+    step: 4,
+    title: "Configure Scheduled Refresh",
+    description:
+      "In the Power BI service, go to Dataset Settings. Configure a data gateway if connecting to on-premises data. Set up scheduled refresh (up to 8 times daily with Pro, 48 with Premium). Enter data source credentials.",
+  },
+  {
+    step: 5,
+    title: "Create a Dashboard",
+    description:
+      "Open your published report in the Power BI service. Hover over a visual, click the pin icon, and pin it to a new or existing dashboard. Dashboards show live tiles from multiple reports on a single page.",
+    tip: "Dashboards are unique to Power BI service — they don't exist in Desktop. Use them for executive summaries.",
+  },
+  {
+    step: 6,
+    title: "Share and Distribute",
+    description:
+      "Share directly with users by entering their email, or create a Power BI App to package multiple reports, dashboards, and datasets. Set row-level security (RLS) to restrict data access by user role. Configure subscriptions for automated email reports.",
+  },
+];
 
-  /* ── Visualization Types by Category ── */
+/* ── Visualization Types by Category ── */
 
-  const comparisonCharts: VisualType[] = [
-    {
-      name: "Bar Chart",
-      description: "Horizontal bars comparing values across categories. Best when category labels are long.",
-      useCase: "Sales by product name, customer ranking, survey responses",
-      icon: BarChart3,
-      tip: "Use horizontal bars when you have many categories (10+) to avoid label overlap.",
-    },
-    {
-      name: "Column Chart",
-      description: "Vertical bars for comparing values. Ideal for time-based comparisons with a small number of categories.",
-      useCase: "Monthly revenue, quarterly sales by region",
-      icon: BarChart3,
-    },
-    {
-      name: "Stacked Bar/Column",
-      description: "Bars divided into segments showing composition. Each segment represents a sub-category within the total.",
-      useCase: "Revenue by product category stacked by region, budget allocation",
-      icon: BarChart3,
-      tip: "Use 100% stacked to compare proportions rather than absolute values.",
-    },
-    {
-      name: "Clustered Bar/Column",
-      description: "Groups of bars side by side for direct comparison between categories across multiple series.",
-      useCase: "Sales by quarter grouped by product line, year-over-year comparison",
-      icon: BarChart3,
-    },
-  ];
+const comparisonCharts: VisualType[] = [
+  {
+    name: "Bar Chart",
+    description: "Horizontal bars comparing values across categories. Best when category labels are long.",
+    useCase: "Sales by product name, customer ranking, survey responses",
+    icon: BarChart3,
+    tip: "Use horizontal bars when you have many categories (10+) to avoid label overlap.",
+  },
+  {
+    name: "Column Chart",
+    description: "Vertical bars for comparing values. Ideal for time-based comparisons with a small number of categories.",
+    useCase: "Monthly revenue, quarterly sales by region",
+    icon: BarChart3,
+  },
+  {
+    name: "Stacked Bar/Column",
+    description: "Bars divided into segments showing composition. Each segment represents a sub-category within the total.",
+    useCase: "Revenue by product category stacked by region, budget allocation",
+    icon: BarChart3,
+    tip: "Use 100% stacked to compare proportions rather than absolute values.",
+  },
+  {
+    name: "Clustered Bar/Column",
+    description: "Groups of bars side by side for direct comparison between categories across multiple series.",
+    useCase: "Sales by quarter grouped by product line, year-over-year comparison",
+    icon: BarChart3,
+  },
+];
 
-  const trendCharts: VisualType[] = [
-    {
-      name: "Line Chart",
-      description: "Connect data points with lines to show trends over continuous time periods. Supports multiple series.",
-      useCase: "Revenue trend over months, stock price movement, website traffic",
-      icon: LineChart,
-      tip: "Use a continuous date axis (not categorical) for accurate time representation.",
-    },
-    {
-      name: "Area Chart",
-      description: "Line chart with the area below filled. Shows both trend and volume. Useful for cumulative totals.",
-      useCase: "Cumulative revenue, market share over time, inventory levels",
-      icon: AreaChart,
-      tip: "Use stacked area charts carefully — the overlapping areas can be misleading.",
-    },
-    {
-      name: "Combo Chart",
-      description: "Combines column and line on the same visual with dual Y-axes. Perfect for comparing different metrics at different scales.",
-      useCase: "Revenue (bars) vs profit margin % (line), sales volume vs average price",
-      icon: BarChart3,
-    },
-    {
-      name: "Ribbon Chart",
-      description: "Like a stacked area chart but re-ranks categories at each time point, showing which category leads.",
-      useCase: "Market share ranking over time, top products by quarter",
-      icon: TrendingUp,
-    },
-  ];
+const trendCharts: VisualType[] = [
+  {
+    name: "Line Chart",
+    description: "Connect data points with lines to show trends over continuous time periods. Supports multiple series.",
+    useCase: "Revenue trend over months, stock price movement, website traffic",
+    icon: LineChart,
+    tip: "Use a continuous date axis (not categorical) for accurate time representation.",
+  },
+  {
+    name: "Area Chart",
+    description: "Line chart with the area below filled. Shows both trend and volume. Useful for cumulative totals.",
+    useCase: "Cumulative revenue, market share over time, inventory levels",
+    icon: AreaChart,
+    tip: "Use stacked area charts carefully — the overlapping areas can be misleading.",
+  },
+  {
+    name: "Combo Chart",
+    description: "Combines column and line on the same visual with dual Y-axes. Perfect for comparing different metrics at different scales.",
+    useCase: "Revenue (bars) vs profit margin % (line), sales volume vs average price",
+    icon: BarChart3,
+  },
+  {
+    name: "Ribbon Chart",
+    description: "Like a stacked area chart but re-ranks categories at each time point, showing which category leads.",
+    useCase: "Market share ranking over time, top products by quarter",
+    icon: TrendingUp,
+  },
+];
 
-  const partToWholeCharts: VisualType[] = [
-    {
-      name: "Pie Chart",
-      description: "Circular chart divided into slices showing proportion of a whole. Best with 3–6 categories maximum.",
-      useCase: "Market share distribution, expense breakdown, demographic split",
-      icon: PieChart,
-      tip: "Avoid pie charts with more than 6 slices. Use bar charts for precise comparisons instead.",
-    },
-    {
-      name: "Donut Chart",
-      description: "Similar to pie chart with a hollow center. The center can display a total value or KPI metric.",
-      useCase: "Budget allocation, project completion percentage",
-      icon: PieChart,
-    },
-    {
-      name: "Treemap",
-      description: "Nested rectangles sized by value. Shows hierarchical part-to-whole relationships in a compact space.",
-      useCase: "Product hierarchy sales, file storage usage, organizational headcount",
-      icon: Layers,
-      tip: "Treemaps work great for hierarchical data — drill into subcategories by clicking.",
-    },
-    {
-      name: "Funnel Chart",
-      description: "Shows values across sequential stages of a process. Each stage is proportionally sized to the value.",
-      useCase: "Sales pipeline stages, recruitment funnel, website conversion funnel",
-      icon: Filter,
-    },
-  ];
+const partToWholeCharts: VisualType[] = [
+  {
+    name: "Pie Chart",
+    description: "Circular chart divided into slices showing proportion of a whole. Best with 3–6 categories maximum.",
+    useCase: "Market share distribution, expense breakdown, demographic split",
+    icon: PieChart,
+    tip: "Avoid pie charts with more than 6 slices. Use bar charts for precise comparisons instead.",
+  },
+  {
+    name: "Donut Chart",
+    description: "Similar to pie chart with a hollow center. The center can display a total value or KPI metric.",
+    useCase: "Budget allocation, project completion percentage",
+    icon: PieChart,
+  },
+  {
+    name: "Treemap",
+    description: "Nested rectangles sized by value. Shows hierarchical part-to-whole relationships in a compact space.",
+    useCase: "Product hierarchy sales, file storage usage, organizational headcount",
+    icon: Layers,
+    tip: "Treemaps work great for hierarchical data — drill into subcategories by clicking.",
+  },
+  {
+    name: "Funnel Chart",
+    description: "Shows values across sequential stages of a process. Each stage is proportionally sized to the value.",
+    useCase: "Sales pipeline stages, recruitment funnel, website conversion funnel",
+    icon: Filter,
+  },
+];
 
-  const distributionCharts: VisualType[] = [
-    {
-      name: "Scatter Chart",
-      description: "Plots individual data points using X and Y axes. Reveals correlations, clusters, and outliers in data.",
-      useCase: "Price vs quantity, customer spend vs frequency, advertising spend vs revenue",
-      icon: BarChart3,
-      tip: "Add a play axis (animation) to watch how scatter points change over time.",
-    },
-    {
-      name: "Bubble Chart",
-      description: "Like scatter but adds a third dimension encoded as bubble size. Shows three measures simultaneously.",
-      useCase: "Revenue vs profit with deal size, GDP vs life expectancy with population",
-      icon: BarChart3,
-    },
-    {
-      name: "Waterfall Chart",
-      description: "Shows how sequential positive and negative values contribute to a total. Floating bars connected by lines.",
-      useCase: "Profit bridge analysis, budget variance (start → additions → deductions → end)",
-      icon: BarChart3,
-    },
-  ];
+const distributionCharts: VisualType[] = [
+  {
+    name: "Scatter Chart",
+    description: "Plots individual data points using X and Y axes. Reveals correlations, clusters, and outliers in data.",
+    useCase: "Price vs quantity, customer spend vs frequency, advertising spend vs revenue",
+    icon: BarChart3,
+    tip: "Add a play axis (animation) to watch how scatter points change over time.",
+  },
+  {
+    name: "Bubble Chart",
+    description: "Like scatter but adds a third dimension encoded as bubble size. Shows three measures simultaneously.",
+    useCase: "Revenue vs profit with deal size, GDP vs life expectancy with population",
+    icon: BarChart3,
+  },
+  {
+    name: "Waterfall Chart",
+    description: "Shows how sequential positive and negative values contribute to a total. Floating bars connected by lines.",
+    useCase: "Profit bridge analysis, budget variance (start → additions → deductions → end)",
+    icon: BarChart3,
+  },
+];
 
-  const tableVisuals: VisualType[] = [
-    {
-      name: "Table Visual",
-      description: "Flat tabular display with rows and columns. Supports conditional formatting, data bars, sparklines, and web URLs.",
-      useCase: "Detailed transaction log, customer list, line-item sales data",
-      icon: Table2,
-      tip: "Use conditional formatting (background color, data bars, icons) to highlight key values.",
-    },
-    {
-      name: "Matrix Visual",
-      description: "Pivot-table style with row and column grouping, expand/collapse, subtotals, and stepped layout hierarchies.",
-      useCase: "Financial statements, year-over-year comparison pivots, multi-level grouping",
-      icon: Table2,
-      tip: "Enable stepped layout for hierarchical row headers and use +/- expand to drill into details.",
-    },
-  ];
+const tableVisuals: VisualType[] = [
+  {
+    name: "Table Visual",
+    description: "Flat tabular display with rows and columns. Supports conditional formatting, data bars, sparklines, and web URLs.",
+    useCase: "Detailed transaction log, customer list, line-item sales data",
+    icon: Table2,
+    tip: "Use conditional formatting (background color, data bars, icons) to highlight key values.",
+  },
+  {
+    name: "Matrix Visual",
+    description: "Pivot-table style with row and column grouping, expand/collapse, subtotals, and stepped layout hierarchies.",
+    useCase: "Financial statements, year-over-year comparison pivots, multi-level grouping",
+    icon: Table2,
+    tip: "Enable stepped layout for hierarchical row headers and use +/- expand to drill into details.",
+  },
+];
 
-  const cardVisuals: VisualType[] = [
-    {
-      name: "Card Visual",
-      description: "Displays a single large number. Use for headline KPIs that need to stand out prominently on the page.",
-      useCase: "Total revenue, customer count, average order value",
-      icon: CreditCard,
-    },
-    {
-      name: "Multi-Row Card",
-      description: "Multiple KPIs in a compact card layout. Each row shows a label and value, great for summary panels.",
-      useCase: "Executive summary: revenue + orders + customers + margin",
-      icon: CreditCard,
-    },
-    {
-      name: "KPI Visual",
-      description: "Shows current value, trend graph, and target (goal). Color-coded to show on-track (green) or behind (red).",
-      useCase: "Sales vs target, monthly goal tracking, SLA compliance",
-      icon: Target,
-      tip: "KPI visuals need a trend axis field (usually date) and a target goal value.",
-    },
-    {
-      name: "Gauge Visual",
-      description: "Semicircular gauge showing a value against a minimum, maximum, and optional target. Visual progress indicator.",
-      useCase: "Server CPU usage, quarterly progress, customer satisfaction score",
-      icon: Gauge,
-    },
-  ];
+const cardVisuals: VisualType[] = [
+  {
+    name: "Card Visual",
+    description: "Displays a single large number. Use for headline KPIs that need to stand out prominently on the page.",
+    useCase: "Total revenue, customer count, average order value",
+    icon: CreditCard,
+  },
+  {
+    name: "Multi-Row Card",
+    description: "Multiple KPIs in a compact card layout. Each row shows a label and value, great for summary panels.",
+    useCase: "Executive summary: revenue + orders + customers + margin",
+    icon: CreditCard,
+  },
+  {
+    name: "KPI Visual",
+    description: "Shows current value, trend graph, and target (goal). Color-coded to show on-track (green) or behind (red).",
+    useCase: "Sales vs target, monthly goal tracking, SLA compliance",
+    icon: Target,
+    tip: "KPI visuals need a trend axis field (usually date) and a target goal value.",
+  },
+  {
+    name: "Gauge Visual",
+    description: "Semicircular gauge showing a value against a minimum, maximum, and optional target. Visual progress indicator.",
+    useCase: "Server CPU usage, quarterly progress, customer satisfaction score",
+    icon: Gauge,
+  },
+];
 
-  const mapVisuals: VisualType[] = [
-    {
-      name: "Bing Map (Bubble Map)",
-      description: "Plots data points as bubbles on a Bing-powered map. Size and color encode measure values at geographic locations.",
-      useCase: "Store locations with revenue, customer density, shipping origins",
-      icon: Map,
-    },
-    {
-      name: "Filled Map (Choropleth)",
-      description: "Colors entire regions/countries based on a measure value. Uses shading intensity to represent data levels.",
-      useCase: "Sales by state/country, population density, election results",
-      icon: Map,
-      tip: "Ensure your geographic data matches Bing Maps naming (e.g., 'United States' not 'USA').",
-    },
-    {
-      name: "Azure Map",
-      description: "Advanced mapping with Azure Maps. Supports heat maps, route visualization, and custom tile layers.",
-      useCase: "Real-time fleet tracking, IoT sensor data on a map, custom spatial analysis",
-      icon: Globe,
-    },
-    {
-      name: "ArcGIS Map",
-      description: "Enterprise-grade Esri ArcGIS integration. Reference layers, demographic data, heatmaps, and drive-time analysis.",
-      useCase: "Advanced geospatial analytics, site selection, demographic overlays",
-      icon: Globe,
-      tip: "ArcGIS Maps for Power BI is a free visual but requires an ArcGIS account for premium features.",
-    },
-  ];
+const mapVisuals: VisualType[] = [
+  {
+    name: "Bing Map (Bubble Map)",
+    description: "Plots data points as bubbles on a Bing-powered map. Size and color encode measure values at geographic locations.",
+    useCase: "Store locations with revenue, customer density, shipping origins",
+    icon: Map,
+  },
+  {
+    name: "Filled Map (Choropleth)",
+    description: "Colors entire regions/countries based on a measure value. Uses shading intensity to represent data levels.",
+    useCase: "Sales by state/country, population density, election results",
+    icon: Map,
+    tip: "Ensure your geographic data matches Bing Maps naming (e.g., 'United States' not 'USA').",
+  },
+  {
+    name: "Azure Map",
+    description: "Advanced mapping with Azure Maps. Supports heat maps, route visualization, and custom tile layers.",
+    useCase: "Real-time fleet tracking, IoT sensor data on a map, custom spatial analysis",
+    icon: Globe,
+  },
+  {
+    name: "ArcGIS Map",
+    description: "Enterprise-grade Esri ArcGIS integration. Reference layers, demographic data, heatmaps, and drive-time analysis.",
+    useCase: "Advanced geospatial analytics, site selection, demographic overlays",
+    icon: Globe,
+    tip: "ArcGIS Maps for Power BI is a free visual but requires an ArcGIS account for premium features.",
+  },
+];
 
-  const aiVisuals: VisualType[] = [
-    {
-      name: "Decomposition Tree",
-      description: "Interactively break down a measure by different dimensions. AI suggests the next best split to explain high/low values.",
-      useCase: "Root cause analysis, why revenue dropped, drill-down exploration",
-      icon: BrainCircuit,
-      tip: "Use the lightbulb icon to let AI suggest the most impactful dimension to split by.",
-    },
-    {
-      name: "Key Influencers",
-      description: "AI identifies which factors most influence a metric to increase or decrease. Built-in statistical analysis.",
-      useCase: "What drives customer churn, factors affecting satisfaction scores",
-      icon: BrainCircuit,
-    },
-    {
-      name: "Q&A Visual",
-      description: "Type natural language questions and Power BI generates a visual answer automatically. Supports synonyms and custom terms.",
-      useCase: "Executive self-service: 'Show me total sales by region last quarter'",
-      icon: BrainCircuit,
-      tip: "Train Q&A by adding synonyms in the Modeling tab → Q&A setup to improve accuracy.",
-    },
-    {
-      name: "Smart Narrative",
-      description: "AI auto-generates a text summary of your data with key insights, trends, and callouts. Updates dynamically.",
-      useCase: "Automated report summaries, data storytelling, executive briefs",
-      icon: BrainCircuit,
-    },
-    {
-      name: "Anomaly Detection",
-      description: "Automatically detects and flags anomalies in time-series line charts. Shows expected range and explanations.",
-      useCase: "Detecting unusual spikes/drops in sales, traffic, or operational metrics",
-      icon: AlertTriangle,
-    },
-  ];
+const aiVisuals: VisualType[] = [
+  {
+    name: "Decomposition Tree",
+    description: "Interactively break down a measure by different dimensions. AI suggests the next best split to explain high/low values.",
+    useCase: "Root cause analysis, why revenue dropped, drill-down exploration",
+    icon: BrainCircuit,
+    tip: "Use the lightbulb icon to let AI suggest the most impactful dimension to split by.",
+  },
+  {
+    name: "Key Influencers",
+    description: "AI identifies which factors most influence a metric to increase or decrease. Built-in statistical analysis.",
+    useCase: "What drives customer churn, factors affecting satisfaction scores",
+    icon: BrainCircuit,
+  },
+  {
+    name: "Q&A Visual",
+    description: "Type natural language questions and Power BI generates a visual answer automatically. Supports synonyms and custom terms.",
+    useCase: "Executive self-service: 'Show me total sales by region last quarter'",
+    icon: BrainCircuit,
+    tip: "Train Q&A by adding synonyms in the Modeling tab → Q&A setup to improve accuracy.",
+  },
+  {
+    name: "Smart Narrative",
+    description: "AI auto-generates a text summary of your data with key insights, trends, and callouts. Updates dynamically.",
+    useCase: "Automated report summaries, data storytelling, executive briefs",
+    icon: BrainCircuit,
+  },
+  {
+    name: "Anomaly Detection",
+    description: "Automatically detects and flags anomalies in time-series line charts. Shows expected range and explanations.",
+    useCase: "Detecting unusual spikes/drops in sales, traffic, or operational metrics",
+    icon: AlertTriangle,
+  },
+];
 
 /* ── Helper: render a visual card (module scope — stable reference) ── */
 function VisualCard({ vis }: { vis: VisualType }) {
@@ -1658,7 +1658,7 @@ export function DataVisualizationContent() {
                     const Icon = item.icon;
                     return (
                       <Link key={item.href} href={item.href} className="group block">
-                        <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
+                        <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-[border-color,background-color,box-shadow] duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                             <Icon className="h-5 w-5" />
                           </div>

@@ -131,7 +131,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b transition-all duration-300 ease-out",
+        "sticky top-0 z-50 w-full border-b transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out",
         scrolled
           ? "border-yellow-500/20 bg-background/80 shadow-md shadow-yellow-500/5 backdrop-blur-xl dark:border-yellow-400/15 dark:shadow-yellow-400/5"
           : "border-transparent bg-background/0 backdrop-blur-none"
@@ -157,7 +157,7 @@ export function Header() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-all duration-200",
+                  "flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200",
                   isActive
                     ? "bg-primary/10 text-yellow-700 dark:text-primary"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -172,7 +172,7 @@ export function Header() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
-          <AnimatedThemeToggler className="focus-ring inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card text-foreground transition-all duration-200 hover:bg-muted hover:scale-105 active:scale-95" />
+          <AnimatedThemeToggler className="focus-ring inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-card text-foreground transition-[background-color,transform] duration-200 hover:bg-muted hover:scale-105 active:scale-95" />
 
           {/* Auth section - Desktop */}
           {!loadingUser && (
@@ -281,148 +281,148 @@ export function Header() {
                   className="flex flex-col gap-1"
                 >
 
-                {/* ── User section first ── */}
-                {!loadingUser && user && (
-                  <>
-                    <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
-                      <div className="flex items-center gap-2.5 px-3 py-2.5">
-                        <Avatar className="h-9 w-9">
-                          <AvatarImage src={getUserAvatar() || undefined} alt={getUserDisplayName()} referrerPolicy="no-referrer" />
-                          <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
-                            {getUserInitials()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-semibold truncate">
-                            Hello, {getUserFirstName()}!
-                          </span>
-                          <span className="text-[10px] text-muted-foreground truncate">{user.email}</span>
+                  {/* ── User section first ── */}
+                  {!loadingUser && user && (
+                    <>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
+                        <div className="flex items-center gap-2.5 px-3 py-2.5">
+                          <Avatar className="h-9 w-9">
+                            <AvatarImage src={getUserAvatar() || undefined} alt={getUserDisplayName()} referrerPolicy="no-referrer" />
+                            <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
+                              {getUserInitials()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-sm font-semibold truncate">
+                              Hello, {getUserFirstName()}!
+                            </span>
+                            <span className="text-[10px] text-muted-foreground truncate">{user.email}</span>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                    <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
-                      <SheetClose asChild>
-                        <Link
-                          href="/dashboard?tab=profile"
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                          <User className="h-4 w-4" />
-                          My Dashboard
-                        </Link>
-                      </SheetClose>
-                    </motion.div>
-                    <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
-                      <SheetClose asChild>
-                        <Link
-                          href="/dashboard?tab=bookmarks"
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                          <Bookmark className="h-4 w-4" />
-                          Bookmarks
-                        </Link>
-                      </SheetClose>
-                    </motion.div>
-                    <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
-                      <SheetClose asChild>
-                        <Link
-                          href="/dashboard?tab=notes"
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                          <StickyNote className="h-4 w-4" />
-                          Notes
-                        </Link>
-                      </SheetClose>
-                    </motion.div>
-                    <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
-                      <SheetClose asChild>
-                        <Link
-                          href="/dashboard?tab=code-editor"
-                          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        >
-                          <Code2 className="h-4 w-4" />
-                          Code Editor
-                        </Link>
-                      </SheetClose>
-                    </motion.div>
+                      </motion.div>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
+                        <SheetClose asChild>
+                          <Link
+                            href="/dashboard?tab=profile"
+                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            <User className="h-4 w-4" />
+                            My Dashboard
+                          </Link>
+                        </SheetClose>
+                      </motion.div>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
+                        <SheetClose asChild>
+                          <Link
+                            href="/dashboard?tab=bookmarks"
+                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            <Bookmark className="h-4 w-4" />
+                            Bookmarks
+                          </Link>
+                        </SheetClose>
+                      </motion.div>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
+                        <SheetClose asChild>
+                          <Link
+                            href="/dashboard?tab=notes"
+                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            <StickyNote className="h-4 w-4" />
+                            Notes
+                          </Link>
+                        </SheetClose>
+                      </motion.div>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
+                        <SheetClose asChild>
+                          <Link
+                            href="/dashboard?tab=code-editor"
+                            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                          >
+                            <Code2 className="h-4 w-4" />
+                            Code Editor
+                          </Link>
+                        </SheetClose>
+                      </motion.div>
 
-                    <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.3 } } }}>
-                      <div className="my-3 h-px bg-border" />
-                    </motion.div>
-                  </>
-                )}
+                      <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.3 } } }}>
+                        <div className="my-3 h-px bg-border" />
+                      </motion.div>
+                    </>
+                  )}
 
-                {/* ── PowerBI Guide nav links ── */}
-                <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
-                  <SheetClose asChild>
-                    <Link
-                      href="/"
-                      className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                        pathname === "/"
-                          ? "bg-primary/10 text-yellow-700 dark:text-primary"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      )}
-                    >
-                      <Home className="h-4 w-4" />
-                      Home
-                    </Link>
-                  </SheetClose>
-                </motion.div>
+                  {/* ── PowerBI Guide nav links ── */}
+                  <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
+                    <SheetClose asChild>
+                      <Link
+                        href="/"
+                        className={cn(
+                          "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                          pathname === "/"
+                            ? "bg-primary/10 text-yellow-700 dark:text-primary"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                        )}
+                      >
+                        <Home className="h-4 w-4" />
+                        Home
+                      </Link>
+                    </SheetClose>
+                  </motion.div>
 
-                {navigation.map((item) => {
-                  const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-                  return (
-                    <motion.div key={item.href} variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
-                      <SheetClose asChild>
-                        <Link
-                          href={item.href}
-                          className={cn(
-                            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                            isActive
-                              ? "bg-primary/10 text-yellow-700 dark:text-primary"
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                          )}
-                        >
-                          <item.icon className="h-4 w-4" />
-                          {item.name}
-                        </Link>
-                      </SheetClose>
-                    </motion.div>
-                  );
-                })}
+                  {navigation.map((item) => {
+                    const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                    return (
+                      <motion.div key={item.href} variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3 } } }}>
+                        <SheetClose asChild>
+                          <Link
+                            href={item.href}
+                            className={cn(
+                              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                              isActive
+                                ? "bg-primary/10 text-yellow-700 dark:text-primary"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            )}
+                          >
+                            <item.icon className="h-4 w-4" />
+                            {item.name}
+                          </Link>
+                        </SheetClose>
+                      </motion.div>
+                    );
+                  })}
 
-                {/* ── Bottom actions ── */}
-                <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.3 } } }}>
-                  <div className="my-3 h-px bg-border" />
-                </motion.div>
+                  {/* ── Bottom actions ── */}
+                  <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.3 } } }}>
+                    <div className="my-3 h-px bg-border" />
+                  </motion.div>
 
-                {!loadingUser && (
-                  user ? (
-                    <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }}>
-                      <SheetClose asChild>
-                        <Button
-                          variant="outline"
-                          className="w-full gap-2"
-                          onClick={handleSignOut}
-                        >
-                          <LogOut className="h-4 w-4" />
-                          Sign Out
-                        </Button>
-                      </SheetClose>
-                    </motion.div>
-                  ) : (
-                    <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }}>
-                      <SheetClose asChild>
-                        <Link href="/auth/login">
-                          <Button variant="outline" className="w-full gap-2">
-                            <LogIn className="h-4 w-4" />
-                            Sign In
+                  {!loadingUser && (
+                    user ? (
+                      <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }}>
+                        <SheetClose asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full gap-2"
+                            onClick={handleSignOut}
+                          >
+                            <LogOut className="h-4 w-4" />
+                            Sign Out
                           </Button>
-                        </Link>
-                      </SheetClose>
-                    </motion.div>
-                  )
-                )}
+                        </SheetClose>
+                      </motion.div>
+                    ) : (
+                      <motion.div variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0, transition: { duration: 0.3 } } }}>
+                        <SheetClose asChild>
+                          <Link href="/auth/login">
+                            <Button variant="outline" className="w-full gap-2">
+                              <LogIn className="h-4 w-4" />
+                              Sign In
+                            </Button>
+                          </Link>
+                        </SheetClose>
+                      </motion.div>
+                    )
+                  )}
                 </motion.div>
               </nav>
             </SheetContent>

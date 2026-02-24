@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Check, Copy } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo, memo } from "react";
 
 interface CodeBlockProps {
   code: string;
@@ -95,7 +95,7 @@ function highlightDAX(code: string): React.ReactNode[] {
   });
 }
 
-export function CodeBlock({
+export const CodeBlock = memo(function CodeBlock({
   code,
   language = "dax",
   title,
@@ -112,6 +112,17 @@ export function CodeBlock({
 
   const lines = code.split("\n");
 
+  /* Memoize expensive syntax highlighting — only recompute if code or language changes */
+  const highlighted = useMemo(() => {
+    if (language !== "dax") return null;
+    return highlightDAX(code);
+  }, [code, language]);
+
+  const highlightedLines = useMemo(() => {
+    if (language !== "dax" || !showLineNumbers) return null;
+    return lines.map((line) => highlightDAX(line));
+  }, [code, language, showLineNumbers, lines]);
+
   return (
     <div className={cn("group relative overflow-hidden rounded-lg border border-border", className)}>
       {/* Header */}
@@ -127,7 +138,7 @@ export function CodeBlock({
       {/* Copy button */}
       <button
         onClick={handleCopy}
-        className="focus-ring absolute right-3 top-2 rounded-md bg-card/80 p-1.5 text-muted-foreground opacity-0 backdrop-blur-sm transition-all hover:text-foreground group-hover:opacity-100"
+        className="focus-ring absolute right-3 top-2 rounded-md bg-card/80 p-1.5 text-muted-foreground opacity-0 backdrop-blur-sm transition-opacity hover:text-foreground group-hover:opacity-100"
         aria-label="Copy code"
       >
         {copied ? <Check className="h-3.5 w-3.5 text-accent" /> : <Copy className="h-3.5 w-3.5" />}
@@ -145,17 +156,17 @@ export function CodeBlock({
                       {i + 1}
                     </td>
                     <td className="whitespace-pre">
-                      {language === "dax" ? highlightDAX(line) : line}
+                      {highlightedLines ? highlightedLines[i] : line}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           ) : (
-            <>{language === "dax" ? highlightDAX(code) : code}</>
+            <>{highlighted ?? code}</>
           )}
         </code>
       </pre>
     </div>
   );
-}
+});

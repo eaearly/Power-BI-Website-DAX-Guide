@@ -595,10 +595,13 @@ const sidebarNav = [
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
+const INITIAL_VISIBLE = 12;
+
 export function DAXGuideContent() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeSection, setActiveSection] = useState("");
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
   const rafRef = useRef(0);
 
   useEffect(() => {
@@ -632,250 +635,275 @@ export function DAXGuideContent() {
     return matchesCategory && matchesSearch;
   }), [activeCategory, searchQuery]);
 
+  /* Reset visible count when filters change */
+  const prevCategory = useRef(activeCategory);
+  const prevSearch = useRef(searchQuery);
+  if (prevCategory.current !== activeCategory || prevSearch.current !== searchQuery) {
+    prevCategory.current = activeCategory;
+    prevSearch.current = searchQuery;
+    if (visibleCount !== INITIAL_VISIBLE) setVisibleCount(INITIAL_VISIBLE);
+  }
+
+  const visibleItems = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
+  const hasMore = visibleCount < filtered.length;
+
   return (
     <PageTransition>
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
-      {/* Page Header */}
-      <AnimateOnScroll variant="fade-up" duration={600}>
-      <div className="mb-10 flex flex-col items-center text-center">
-        <Badge variant="dax" className="mb-3">
-          <Zap className="mr-1 h-3 w-3" />
-          DAX Reference
-        </Badge>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">DAX Syntax Guide</h1>
-        <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
-          Complete reference for Data Analysis Expressions (DAX) in Power BI. Browse by category,
-          search functions, and copy ready-to-use examples with syntax highlighting.
-        </p>
-      </div>
-      </AnimateOnScroll>
+      <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
+        {/* Page Header */}
+        <AnimateOnScroll variant="fade-up" duration={600}>
+          <div className="mb-10 flex flex-col items-center text-center">
+            <Badge variant="dax" className="mb-3">
+              <Zap className="mr-1 h-3 w-3" />
+              DAX Reference
+            </Badge>
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">DAX Syntax Guide</h1>
+            <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
+              Complete reference for Data Analysis Expressions (DAX) in Power BI. Browse by category,
+              search functions, and copy ready-to-use examples with syntax highlighting.
+            </p>
+          </div>
+        </AnimateOnScroll>
 
-      {/* Search */}
-      <AnimateOnScroll variant="fade-up" delay={50} duration={500}>
-      <div className="mb-6">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search DAX functions..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="focus-ring w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm placeholder:text-muted-foreground"
-          />
-        </div>
-      </div>
-      </AnimateOnScroll>
+        {/* Search */}
+        <AnimateOnScroll variant="fade-up" delay={50} duration={500}>
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search DAX functions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="focus-ring w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm placeholder:text-muted-foreground"
+              />
+            </div>
+          </div>
+        </AnimateOnScroll>
 
-      {/* Category Filters */}
-      <AnimateOnScroll variant="fade-up" delay={100} duration={500}>
-      <div className="mb-8 flex flex-wrap gap-2" id="category-filters">
-        {categories.map((cat) => (
-          <Button
-            key={cat.id}
-            variant="outline"
-            size="sm"
-            className={cn(
-              "gap-1.5 transition-all duration-200",
-              activeCategory === cat.id
-                ? (cat.activeColor || "bg-primary text-primary-foreground hover:bg-primary/90 border-primary")
-                : (cat.color || "")
-            )}
-            onClick={() => setActiveCategory(cat.id)}
-          >
-            <cat.icon className="h-3.5 w-3.5" />
-            {cat.label}
-          </Button>
-        ))}
-      </div>
-      </AnimateOnScroll>
-
-      {/* ---- Flex layout: sidebar + main content ---- */}
-      <div className="flex gap-10">
-
-      {/* Sticky sidebar – hidden on small screens */}
-      <aside className="hidden xl:block w-56 shrink-0">
-        <nav className="sticky top-24">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            In this article
-          </p>
-          <ul className="space-y-1 border-l-2 border-border">
-            {sidebarNav.map((item) => (
-              <li key={item.id}>
-                <a
-                  href={`#${item.id}`}
-                  className={cn(
-                    "block border-l-2 -ml-[2px] py-1 pl-4 text-sm transition-colors",
-                    activeSection === item.id
-                      ? "border-primary text-primary font-medium"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  {item.label}
-                </a>
-              </li>
+        {/* Category Filters */}
+        <AnimateOnScroll variant="fade-up" delay={100} duration={500}>
+          <div className="mb-8 flex flex-wrap gap-2" id="category-filters">
+            {categories.map((cat) => (
+              <Button
+                key={cat.id}
+                variant="outline"
+                size="sm"
+                className={cn(
+                  "gap-1.5 transition-colors duration-200",
+                  activeCategory === cat.id
+                    ? (cat.activeColor || "bg-primary text-primary-foreground hover:bg-primary/90 border-primary")
+                    : (cat.color || "")
+                )}
+                onClick={() => setActiveCategory(cat.id)}
+              >
+                <cat.icon className="h-3.5 w-3.5" />
+                {cat.label}
+              </Button>
             ))}
-          </ul>
-        </nav>
-      </aside>
+          </div>
+        </AnimateOnScroll>
 
-      {/* Main content */}
-      <div className="min-w-0 flex-1">
+        {/* ---- Flex layout: sidebar + main content ---- */}
+        <div className="flex gap-10">
 
-      {/* Quick Introduction */}
-      <AnimateOnScroll variant="fade-up" delay={50}>
-      <Card id="what-is-dax" className="scroll-mt-24 mb-10 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5">
-        <CardContent className="py-6">
-          <h3 className="mb-2 text-lg font-semibold">What is DAX?</h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            <strong className="text-foreground">DAX (Data Analysis Expressions)</strong> is the formula language used in Power BI, Analysis Services, and Power Pivot.
-            It lets you create custom calculations for computed columns, measures, and calculated tables. If you&apos;ve used Excel formulas before,
-            DAX will feel familiar — but it&apos;s much more powerful because it works with entire tables and understands filter context.
-            Think of DAX as the language that turns raw data into meaningful business insights inside your Power BI reports.
-          </p>
-        </CardContent>
-      </Card>
-      </AnimateOnScroll>
+          {/* Sticky sidebar – hidden on small screens */}
+          <aside className="hidden xl:block w-56 shrink-0">
+            <nav className="sticky top-24">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                In this article
+              </p>
+              <ul className="space-y-1 border-l-2 border-border">
+                {sidebarNav.map((item) => (
+                  <li key={item.id}>
+                    <a
+                      href={`#${item.id}`}
+                      className={cn(
+                        "block border-l-2 -ml-[2px] py-1 pl-4 text-sm transition-colors",
+                        activeSection === item.id
+                          ? "border-primary text-primary font-medium"
+                          : "border-transparent text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
 
-      {/* Performance Tips Card */}
-      <AnimateOnScroll variant="fade-up" delay={100}>
-      <Card id="performance" className="scroll-mt-24 mb-10 border-primary/20 hover:border-primary/40 bg-primary/5">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-yellow-700 dark:text-primary">
-            <Zap className="h-5 w-5" /> DAX Performance Best Practices
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="grid gap-2 text-sm sm:grid-cols-2">
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-              Use <strong>variables (VAR / RETURN)</strong> to avoid repeating expensive calculations.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-              Prefer <strong>DIVIDE()</strong> over the <code>/</code> operator for safe division.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-              Avoid <strong>FILTER()</strong> on large tables when a simple column filter works.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-              Use <strong>SUMMARIZECOLUMNS</strong> instead of SUMMARIZE + ADDCOLUMNS.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-              Never use <strong>FORMAT()</strong> inside calculations — it returns text.
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-              Always create a dedicated <strong>Date table</strong> for time intelligence.
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
-      </AnimateOnScroll>
+          {/* Main content */}
+          <div className="min-w-0 flex-1">
 
-      <section id="functions" className="scroll-mt-24">
-      {/* Results count */}
-      <AnimateOnScroll variant="fade-up" delay={120} duration={400}>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Showing <strong>{filtered.length}</strong> function{filtered.length !== 1 ? "s" : ""}
-        {activeCategory !== "all" && (
-          <> in <Badge variant={getCategoryBadge(activeCategory)}>{categories.find((c) => c.id === activeCategory)?.label}</Badge></>
-        )}
-      </p>
-      </AnimateOnScroll>
-
-      {/* Function Cards */}
-      <div className="space-y-6">
-        {filtered.map((fn, i) => (
-          <Card key={fn.name} id={fn.name.toLowerCase().replace(/\s/g, "-")} className={cn("scroll-mt-20 border-l-4 transition-all duration-200 hover:shadow-md", getCategoryBorderColor(fn.category))} style={{ animationDelay: `${Math.min(i * 40, 200)}ms` }}>
-            <CardHeader>
-              <div className="flex flex-wrap items-center gap-2">
-                <CardTitle className="font-mono text-lg">{fn.name}</CardTitle>
-                <Badge variant={getCategoryBadge(fn.category)}>
-                  {categories.find((c) => c.id === fn.category)?.label}
-                </Badge>
-              </div>
-              <CardDescription className="mt-1">{fn.description}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Syntax */}
-              <div>
-                <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Syntax
-                </h4>
-                <code className="block rounded-md bg-muted px-3 py-2 font-mono text-sm">
-                  {fn.syntax}
-                </code>
-              </div>
-
-              {/* Example */}
-              <div>
-                <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Example
-                </h4>
-                <CodeBlock code={fn.example} language="dax" showLineNumbers={fn.example.split("\n").length > 1} />
-              </div>
-
-              {/* Tip */}
-              {fn.tip && (
-                <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-                  <p className="text-sm">
-                    <strong className="text-yellow-700 dark:text-primary">💡 Tip:</strong> {fn.tip}
+            {/* Quick Introduction */}
+            <AnimateOnScroll variant="fade-up" delay={50}>
+              <Card id="what-is-dax" className="scroll-mt-24 mb-10 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5">
+                <CardContent className="py-6">
+                  <h3 className="mb-2 text-lg font-semibold">What is DAX?</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    <strong className="text-foreground">DAX (Data Analysis Expressions)</strong> is the formula language used in Power BI, Analysis Services, and Power Pivot.
+                    It lets you create custom calculations for computed columns, measures, and calculated tables. If you&apos;ve used Excel formulas before,
+                    DAX will feel familiar — but it&apos;s much more powerful because it works with entire tables and understands filter context.
+                    Think of DAX as the language that turns raw data into meaningful business insights inside your Power BI reports.
                   </p>
+                </CardContent>
+              </Card>
+            </AnimateOnScroll>
+
+            {/* Performance Tips Card */}
+            <AnimateOnScroll variant="fade-up" delay={100}>
+              <Card id="performance" className="scroll-mt-24 mb-10 border-primary/20 hover:border-primary/40 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-yellow-700 dark:text-primary">
+                    <Zap className="h-5 w-5" /> DAX Performance Best Practices
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="grid gap-2 text-sm sm:grid-cols-2">
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      Use <strong>variables (VAR / RETURN)</strong> to avoid repeating expensive calculations.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      Prefer <strong>DIVIDE()</strong> over the <code>/</code> operator for safe division.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      Avoid <strong>FILTER()</strong> on large tables when a simple column filter works.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      Use <strong>SUMMARIZECOLUMNS</strong> instead of SUMMARIZE + ADDCOLUMNS.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      Never use <strong>FORMAT()</strong> inside calculations — it returns text.
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                      Always create a dedicated <strong>Date table</strong> for time intelligence.
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </AnimateOnScroll>
+
+            <section id="functions" className="scroll-mt-24">
+              {/* Results count */}
+              <AnimateOnScroll variant="fade-up" delay={120} duration={400}>
+                <p className="mb-6 text-sm text-muted-foreground">
+                  Showing <strong>{filtered.length}</strong> function{filtered.length !== 1 ? "s" : ""}
+                  {activeCategory !== "all" && (
+                    <> in <Badge variant={getCategoryBadge(activeCategory)}>{categories.find((c) => c.id === activeCategory)?.label}</Badge></>
+                  )}
+                </p>
+              </AnimateOnScroll>
+
+              {/* Function Cards */}
+              <div className="space-y-6">
+                {visibleItems.map((fn) => (
+                  <Card key={fn.name} id={fn.name.toLowerCase().replace(/\s/g, "-")} className={cn("scroll-mt-20 border-l-4 transition-[box-shadow] duration-200 hover:shadow-md transform-gpu", getCategoryBorderColor(fn.category))}>
+                    <CardHeader>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <CardTitle className="font-mono text-lg">{fn.name}</CardTitle>
+                        <Badge variant={getCategoryBadge(fn.category)}>
+                          {categories.find((c) => c.id === fn.category)?.label}
+                        </Badge>
+                      </div>
+                      <CardDescription className="mt-1">{fn.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Syntax */}
+                      <div>
+                        <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Syntax
+                        </h4>
+                        <code className="block rounded-md bg-muted px-3 py-2 font-mono text-sm">
+                          {fn.syntax}
+                        </code>
+                      </div>
+
+                      {/* Example */}
+                      <div>
+                        <h4 className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                          Example
+                        </h4>
+                        <CodeBlock code={fn.example} language="dax" showLineNumbers={fn.example.split("\n").length > 1} />
+                      </div>
+
+                      {/* Tip */}
+                      {fn.tip && (
+                        <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+                          <p className="text-sm">
+                            <strong className="text-yellow-700 dark:text-primary">💡 Tip:</strong> {fn.tip}
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {/* Load more button — avoids rendering all 35+ cards at once */}
+                {hasMore && (
+                  <div className="flex justify-center pt-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setVisibleCount((c) => Math.min(c + INITIAL_VISIBLE, filtered.length))}
+                      className="gap-2"
+                    >
+                      Show more ({filtered.length - visibleCount} remaining)
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {filtered.length === 0 && (
+                <div className="py-20 text-center">
+                  <p className="text-lg text-muted-foreground">No functions found matching your search.</p>
+                  <Button variant="outline" className="mt-4" onClick={() => { setSearchQuery(""); setActiveCategory("all"); }}>
+                    Clear Filters
+                  </Button>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        ))}
+            </section>
+
+            {/* Related Content */}
+            <AnimateOnScroll variant="fade-up">
+              <div className="mt-12">
+                <h3 className="mb-4 text-lg font-semibold text-foreground">Related Content</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    { href: "/data-modeling", icon: Database, title: "Data Modeling", description: "Learn star schema design and relationships that power your DAX queries." },
+                    { href: "/measures-vs-columns", icon: Columns3, title: "Measures vs Columns", description: "Know when to use measures vs calculated columns for your DAX expressions." },
+                    { href: "/data-visualization", icon: BarChart3, title: "Data Visualization", description: "Visualize your DAX measures with Power BI charts, KPIs, and dashboards." },
+                    { href: "/sql-reference", icon: Table2, title: "SQL Reference", description: "Map your SQL knowledge to DAX with side-by-side query comparisons." },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link key={item.href} href={item.href} className="group block">
+                        <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-[border-color,background-color,box-shadow] duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">{item.title}</h4>
+                            <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+                          </div>
+                          <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </AnimateOnScroll>
+
+          </div>{/* end main content */}
+        </div>{/* end flex layout */}
+
       </div>
-
-      {filtered.length === 0 && (
-        <div className="py-20 text-center">
-          <p className="text-lg text-muted-foreground">No functions found matching your search.</p>
-          <Button variant="outline" className="mt-4" onClick={() => { setSearchQuery(""); setActiveCategory("all"); }}>
-            Clear Filters
-          </Button>
-        </div>
-      )}
-      </section>
-
-      {/* Related Content */}
-      <AnimateOnScroll variant="fade-up">
-        <div className="mt-12">
-          <h3 className="mb-4 text-lg font-semibold text-foreground">Related Content</h3>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              { href: "/data-modeling", icon: Database, title: "Data Modeling", description: "Learn star schema design and relationships that power your DAX queries." },
-              { href: "/measures-vs-columns", icon: Columns3, title: "Measures vs Columns", description: "Know when to use measures vs calculated columns for your DAX expressions." },
-              { href: "/data-visualization", icon: BarChart3, title: "Data Visualization", description: "Visualize your DAX measures with Power BI charts, KPIs, and dashboards." },
-              { href: "/sql-reference", icon: Table2, title: "SQL Reference", description: "Map your SQL knowledge to DAX with side-by-side query comparisons." },
-            ].map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link key={item.href} href={item.href} className="group block">
-                  <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">{item.title}</h4>
-                      <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
-                    </div>
-                    <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </AnimateOnScroll>
-
-      </div>{/* end main content */}
-      </div>{/* end flex layout */}
-
-    </div>
     </PageTransition>
   );
 }

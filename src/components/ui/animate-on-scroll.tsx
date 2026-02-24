@@ -118,7 +118,7 @@ export function AnimateOnScroll({
     <div
       ref={ref}
       className={cn(
-        "transition-all",
+        "transition-[opacity,transform,filter]",
         isVisible ? to : from,
         className
       )}
