@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimateOnScroll } from "@/components/ui/animate-on-scroll";
@@ -40,6 +41,8 @@ import {
   Globe,
   LineChart,
   AreaChart,
+  Calculator,
+  Columns3,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -1630,6 +1633,37 @@ export function DataVisualizationContent() {
                 </div>
               </AnimateOnScroll>
             </section>
+
+            {/* Related Content */}
+            <AnimateOnScroll variant="fade-up">
+              <div className="mt-12">
+                <h3 className="mb-4 text-lg font-semibold text-foreground">Related Content</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    { href: "/dax-guide", icon: Calculator, title: "DAX Functions Guide", description: "Write DAX functions to power your visual calculations and KPIs." },
+                    { href: "/data-modeling", icon: Database, title: "Data Modeling", description: "Design the data models that underpin your reports and dashboards." },
+                    { href: "/measures-vs-columns", icon: Columns3, title: "Measures vs Columns", description: "Choose the right calculation type to drive your Power BI visuals." },
+                    { href: "/sql-reference", icon: Table2, title: "SQL Reference", description: "Bridge your SQL knowledge to Power BI and DAX." },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link key={item.href} href={item.href} className="group block">
+                        <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">{item.title}</h4>
+                            <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+                          </div>
+                          <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </AnimateOnScroll>
           </div>
         </div>
       </div>

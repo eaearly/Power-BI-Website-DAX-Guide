@@ -99,15 +99,13 @@ export function StarSchemaBeam() {
         </div>
       </div>
 
-      {/* Animated beams — each connects to a distinct edge of the Fact node */}
-      {/* Employee (top-left) → Fact top-left edge */}
+      {/* Animated beams — edge-to-edge (no offsets needed) */}
+      {/* Employee (top-left) → Fact */}
       <AnimatedBeam
         containerRef={containerRef}
         fromRef={employeeRef}
         toRef={factRef}
         curvature={-30}
-        endXOffset={-30}
-        endYOffset={-50}
         pathColor="var(--beam-path-color, #64748b)"
         pathWidth={2}
         pathOpacity={0.3}
@@ -116,13 +114,12 @@ export function StarSchemaBeam() {
         gradientStartColor="#10b981"
         gradientStopColor="#3b82f6"
       />
-      {/* Date (top-center) → Fact top edge */}
+      {/* Date (top-center) → Fact */}
       <AnimatedBeam
         containerRef={containerRef}
         fromRef={dateRef}
         toRef={factRef}
         curvature={0}
-        endYOffset={-25}
         pathColor="var(--beam-path-color, #64748b)"
         pathWidth={2}
         pathOpacity={0.3}
@@ -131,14 +128,12 @@ export function StarSchemaBeam() {
         gradientStartColor="#10b981"
         gradientStopColor="#3b82f6"
       />
-      {/* Promotion (top-right) → Fact top-right edge */}
+      {/* Promotion (top-right) → Fact */}
       <AnimatedBeam
         containerRef={containerRef}
         fromRef={promotionRef}
         toRef={factRef}
-        curvature={0}
-        endXOffset={25}
-        endYOffset={-18}
+        curvature={30}
         reverse
         pathColor="var(--beam-path-color, #64748b)"
         pathWidth={2}
@@ -148,13 +143,12 @@ export function StarSchemaBeam() {
         gradientStartColor="#3b82f6"
         gradientStopColor="#10b981"
       />
-      {/* Product (middle-left) → Fact left edge */}
+      {/* Product (middle-left) → Fact */}
       <AnimatedBeam
         containerRef={containerRef}
         fromRef={productRef}
         toRef={factRef}
         curvature={0}
-        endXOffset={-40}
         pathColor="var(--beam-path-color, #64748b)"
         pathWidth={2}
         pathOpacity={0.3}
@@ -163,13 +157,12 @@ export function StarSchemaBeam() {
         gradientStartColor="#10b981"
         gradientStopColor="#3b82f6"
       />
-      {/* Customer (middle-right) → Fact right edge */}
+      {/* Customer (middle-right) → Fact */}
       <AnimatedBeam
         containerRef={containerRef}
         fromRef={customerRef}
         toRef={factRef}
         curvature={0}
-        endXOffset={40}
         reverse
         pathColor="var(--beam-path-color, #64748b)"
         pathWidth={2}
@@ -179,13 +172,12 @@ export function StarSchemaBeam() {
         gradientStartColor="#3b82f6"
         gradientStopColor="#10b981"
       />
-      {/* Store (bottom-center) → Fact bottom edge */}
+      {/* Store (bottom-center) → Fact */}
       <AnimatedBeam
         containerRef={containerRef}
         fromRef={storeRef}
         toRef={factRef}
         curvature={0}
-        endYOffset={25}
         pathColor="var(--beam-path-color, #64748b)"
         pathWidth={2}
         pathOpacity={0.3}

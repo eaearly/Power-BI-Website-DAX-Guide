@@ -25,6 +25,66 @@ export interface AnimatedBeamProps {
   endYOffset?: number
 }
 
+/**
+ * Compute where a ray from `from` → `to` exits the axis-aligned rectangle.
+ * Returns the intersection point on the rectangle border.
+ * `rx, ry` = top-left corner; `rw, rh` = width, height.
+ */
+function borderIntersection(
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+  rx: number,
+  ry: number,
+  rw: number,
+  rh: number
+): { x: number; y: number } {
+  const dx = toX - fromX
+  const dy = toY - fromY
+  let best: { x: number; y: number } | null = null
+  let minT = Infinity
+
+  // Top edge
+  if (dy !== 0) {
+    const t = (ry - fromY) / dy
+    const ix = fromX + t * dx
+    if (t > 0 && t < minT && ix >= rx && ix <= rx + rw) {
+      minT = t
+      best = { x: ix, y: ry }
+    }
+  }
+  // Bottom edge
+  if (dy !== 0) {
+    const t = (ry + rh - fromY) / dy
+    const ix = fromX + t * dx
+    if (t > 0 && t < minT && ix >= rx && ix <= rx + rw) {
+      minT = t
+      best = { x: ix, y: ry + rh }
+    }
+  }
+  // Left edge
+  if (dx !== 0) {
+    const t = (rx - fromX) / dx
+    const iy = fromY + t * dy
+    if (t > 0 && t < minT && iy >= ry && iy <= ry + rh) {
+      minT = t
+      best = { x: rx, y: iy }
+    }
+  }
+  // Right edge
+  if (dx !== 0) {
+    const t = (rx + rw - fromX) / dx
+    const iy = fromY + t * dy
+    if (t > 0 && t < minT && iy >= ry && iy <= ry + rh) {
+      minT = t
+      best = { x: rx + rw, y: iy }
+    }
+  }
+
+  return best || { x: fromX, y: fromY }
+}
+
 export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
   className,
   containerRef,
@@ -74,16 +134,38 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
         const svgHeight = containerRect.height
         setSvgDimensions({ width: svgWidth, height: svgHeight })
 
-        const startX =
-          rectA.left - containerRect.left + rectA.width / 2 + startXOffset
-        const startY =
-          rectA.top - containerRect.top + rectA.height / 2 + startYOffset
-        const endX =
-          rectB.left - containerRect.left + rectB.width / 2 + endXOffset
-        const endY =
-          rectB.top - containerRect.top + rectB.height / 2 + endYOffset
+        // Center of each node (relative to container)
+        const centerAX = rectA.left - containerRect.left + rectA.width / 2
+        const centerAY = rectA.top - containerRect.top + rectA.height / 2
+        const centerBX = rectB.left - containerRect.left + rectB.width / 2
+        const centerBY = rectB.top - containerRect.top + rectB.height / 2
 
-        const controlY = startY - curvature
+        // Rectangle bounds relative to container
+        const aLeft = rectA.left - containerRect.left
+        const aTop = rectA.top - containerRect.top
+        const bLeft = rectB.left - containerRect.left
+        const bTop = rectB.top - containerRect.top
+
+        // Compute edge intersection — line exits "from" node heading toward "to" center
+        const fromEdge = borderIntersection(
+          centerAX, centerAY,
+          centerBX, centerBY,
+          aLeft, aTop, rectA.width, rectA.height,
+        )
+        // Line exits "to" node heading toward "from" center
+        const toEdge = borderIntersection(
+          centerBX, centerBY,
+          centerAX, centerAY,
+          bLeft, bTop, rectB.width, rectB.height,
+        )
+
+        // Apply offsets (small tweaks) on top of edge points
+        const startX = fromEdge.x + startXOffset
+        const startY = fromEdge.y + startYOffset
+        const endX = toEdge.x + endXOffset
+        const endY = toEdge.y + endYOffset
+
+        const controlY = (startY + endY) / 2 - curvature
         const d = `M ${startX},${startY} Q ${
           (startX + endX) / 2
         },${controlY} ${endX},${endY}`

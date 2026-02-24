@@ -17,6 +17,8 @@ import {
   Columns3,
   Calculator,
   AlertTriangle,
+  Database,
+  Table2,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -1271,26 +1273,35 @@ YEAR( 'Date'[Date] ) * 100 + MONTH( 'Date'[Date] )`}
       </AnimateOnScroll>
       </section>
 
-      {/* Data Visualization Cross-Link */}
+      {/* Related Content */}
       <AnimateOnScroll variant="fade-up">
-        <Link href="/data-visualization" className="group mt-8 block">
-          <div className="relative overflow-hidden rounded-2xl border border-yellow-500/20 bg-gradient-to-r from-yellow-500/5 via-amber-500/5 to-orange-500/5 p-6 transition-all duration-300 hover:border-yellow-500/40 hover:shadow-lg hover:shadow-yellow-500/5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                </div>
-                <div>
-                  <h3 className="text-base font-semibold text-foreground">Explore Data Visualization</h3>
-                  <p className="text-sm text-muted-foreground">See how measures and columns power your Power BI visuals — charts, KPIs, conditional formatting, and more.</p>
-                </div>
-              </div>
-              <div className="hidden shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 sm:block">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-              </div>
-            </div>
+        <div className="mt-12">
+          <h3 className="mb-4 text-lg font-semibold text-foreground">Related Content</h3>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {[
+              { href: "/dax-guide", icon: Calculator, title: "DAX Functions Guide", description: "Explore the full DAX function library to write better measures and columns." },
+              { href: "/data-modeling", icon: Database, title: "Data Modeling", description: "Design star schemas and relationships that support your calculations." },
+              { href: "/data-visualization", icon: BarChart3, title: "Data Visualization", description: "See how measures and columns drive your Power BI visuals and reports." },
+              { href: "/sql-reference", icon: Table2, title: "SQL Reference", description: "Transition from SQL to DAX with side-by-side query patterns." },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.href} href={item.href} className="group block">
+                  <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h4 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">{item.title}</h4>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+                    </div>
+                    <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-        </Link>
+        </div>
       </AnimateOnScroll>
 
         </div>
