@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { CodeBlock } from "@/components/ui/code-block";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -431,6 +431,7 @@ GROUP BY d.year, p.category;
 
 export function SQLReferenceContent() {
   const [activeSection, setActiveSection] = useState("sql-dax-ref");
+  const rafRef = useRef(0);
 
   const sidebarItems = [
     { id: "sql-dax-ref", label: "SQL ↔ DAX Reference" },
@@ -439,212 +440,219 @@ export function SQLReferenceContent() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = sidebarItems.map((item) => ({
-        id: item.id,
-        el: document.getElementById(item.id),
-      }));
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const el = sections[i].el;
-        if (el && el.getBoundingClientRect().top <= 120) {
-          setActiveSection(sections[i].id);
-          break;
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        const sections = sidebarItems.map((item) => ({
+          id: item.id,
+          el: document.getElementById(item.id),
+        }));
+        for (let i = sections.length - 1; i >= 0; i--) {
+          const el = sections[i].el;
+          if (el && el.getBoundingClientRect().top <= 120) {
+            setActiveSection(sections[i].id);
+            break;
+          }
         }
-      }
+      });
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   return (
     <PageTransition>
-    <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
-      {/* Header */}
-      <AnimateOnScroll variant="fade-up" duration={600}>
-      <div className="mb-12 flex flex-col items-center text-center">
-        <Badge variant="secondary" className="mb-3 border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400">
-          <BookOpen className="mr-1 h-3 w-3" />
-          SQL Reference
-        </Badge>
-        <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
-          SQL Reference for Power BI
-        </h1>
-        <p className="mt-3 max-w-3xl text-lg text-muted-foreground">
-          SQL fundamentals tailored for Power BI developers. PostgreSQL query patterns, CTEs,
-          window functions, and DirectQuery optimization — with DAX equivalents noted throughout.
-        </p>
-      </div>
-      </AnimateOnScroll>
-
-      {/* Quick Introduction */}
-      <AnimateOnScroll variant="fade-up" delay={50}>
-      <Card className="mb-12 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5">
-        <CardContent className="py-6">
-          <h3 className="mb-2 text-lg font-semibold">Quick Introduction</h3>
-          <p className="text-sm leading-relaxed text-foreground/80 dark:text-foreground/70">
-            <strong className="text-foreground">SQL (Structured Query Language)</strong> is the standard language for communicating with
-            relational databases. As a Power BI developer, you&apos;ll encounter SQL when connecting to databases via DirectQuery,
-            writing custom SQL queries in Power Query, or optimizing your data source for better report performance.
-            Understanding SQL helps you write efficient queries, design better data models, and troubleshoot
-            the queries that Power BI generates behind the scenes.
-          </p>
-        </CardContent>
-      </Card>
-      </AnimateOnScroll>
-
-      {/* ── Layout: Sidebar + Content ── */}
-      <div className="flex gap-10">
-        {/* Sidebar Navigation — sticky, Microsoft Learn style */}
-        <aside className="hidden w-56 shrink-0 lg:block">
-          <div className="sticky top-24">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              In this article
+      <div className="mx-auto w-full max-w-[1600px] px-6 py-12 sm:px-10 lg:px-16">
+        {/* Header */}
+        <AnimateOnScroll variant="fade-up" duration={600}>
+          <div className="mb-12 flex flex-col items-center text-center">
+            <Badge variant="secondary" className="mb-3 border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-400">
+              <BookOpen className="mr-1 h-3 w-3" />
+              SQL Reference
+            </Badge>
+            <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">
+              SQL Reference for Power BI
+            </h1>
+            <p className="mt-3 max-w-3xl text-lg text-muted-foreground">
+              SQL fundamentals tailored for Power BI developers. PostgreSQL query patterns, CTEs,
+              window functions, and DirectQuery optimization — with DAX equivalents noted throughout.
             </p>
-            <nav className="flex flex-col gap-0.5 border-l border-border">
-              {sidebarItems.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                  className={cn(
-                    "-ml-px border-l-2 px-4 py-1.5 text-sm transition-colors",
-                    activeSection === item.id
-                      ? "border-primary font-medium text-foreground"
-                      : "border-transparent text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground"
-                  )}
-                >
-                  {item.label}
-                </a>
-              ))}
-            </nav>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <div className="min-w-0 flex-1 space-y-16">
-
-      {/* SQL vs DAX Quick Reference */}
-      <section id="sql-dax-ref" className="scroll-mt-24">
-      <AnimateOnScroll variant="fade-up">
-      <Card className="border-primary/20 hover:border-primary/40 bg-primary/5">
-        <CardHeader>
-          <CardTitle className="text-yellow-700 dark:text-primary">SQL ↔ DAX Quick Reference</CardTitle>
-          <CardDescription>Common equivalents between SQL and DAX</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="px-3 py-2 text-left">SQL</th>
-                  <th className="px-3 py-2 text-left">DAX Equivalent</th>
-                  <th className="px-3 py-2 text-left">Notes</th>
-                </tr>
-              </thead>
-              <tbody className="text-foreground">
-                {[
-                  { sql: "SELECT ... FROM ... WHERE", dax: "CALCULATETABLE / FILTER", note: "Filter context vs row-by-row" },
-                  { sql: "GROUP BY + SUM()", dax: "SUMMARIZECOLUMNS", note: "DAX auto-groups in visuals" },
-                  { sql: "INNER JOIN ... ON", dax: "RELATED()", note: "Relationships defined in model" },
-                  { sql: "LEFT JOIN", dax: "NATURALLEFTOUTERJOIN", note: "Or handle with IF(ISBLANK(...))" },
-                  { sql: "CASE WHEN", dax: "SWITCH(TRUE(), ...)", note: "Multi-condition branching" },
-                  { sql: "COALESCE(x, 0)", dax: "IF(ISBLANK(x), 0, x)", note: "Handle blanks/NULLs" },
-                  { sql: "COUNT(DISTINCT col)", dax: "DISTINCTCOUNT(col)", note: "Same semantics" },
-                  { sql: "ROW_NUMBER() OVER()", dax: "RANKX()", note: "Ranking in context" },
-                  { sql: "LAG() / LEAD()", dax: "DATEADD / SAMEPERIODLASTYEAR", note: "Prior period comparisons" },
-                  { sql: "SUM() OVER()", dax: "CALCULATE + ALL pattern", note: "Window vs filter manipulation" },
-                  { sql: "CTE (WITH ... AS)", dax: "VAR / RETURN", note: "Named intermediate results" },
-                  { sql: "CREATE INDEX", dax: "N/A (VertiPaq handles it)", note: "Import mode auto-optimizes" },
-                ].map((row, i) => (
-                  <tr key={i} className={i % 2 === 0 ? "" : "bg-muted/10"}>
-                    <td className="px-3 py-2 font-mono text-xs">{row.sql}</td>
-                    <td className="px-3 py-2 font-mono text-xs">{row.dax}</td>
-                    <td className="px-3 py-2 text-xs">{row.note}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-      </AnimateOnScroll>
-      </section>
-
-      {/* Topics */}
-        {sqlTopics.map((topic) => (
-          <AnimateOnScroll key={topic.id} variant="fade-up">
-          <section id={topic.id} className="scroll-mt-24">
-            <div className="mb-6">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <topic.icon className="h-5 w-5 text-yellow-700 dark:text-primary" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">{topic.title}</h2>
-                  <p className="text-sm text-foreground/70 dark:text-foreground/60">{topic.description}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              {topic.examples.map((example) => (
-                <Card key={example.title}>
-                  <CardHeader>
-                    <CardTitle className="text-base">{example.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <CodeBlock code={example.code} language="sql" />
-                    {example.note && (
-                      <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-                        <p className="text-sm">
-                          <strong className="text-yellow-700 dark:text-primary">💡 Power BI Note:</strong> {example.note}
-                        </p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </section>
-          </AnimateOnScroll>
-        ))}
-
-        {/* Related Content */}
-        <AnimateOnScroll variant="fade-up">
-          <div className="mt-12">
-            <h3 className="mb-4 text-lg font-semibold text-foreground">Related Content</h3>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                { href: "/dax-guide", icon: Calculator, title: "DAX Functions Guide", description: "Explore DAX functions — the Power BI equivalent of SQL expressions." },
-                { href: "/data-modeling", icon: Database, title: "Data Modeling", description: "Learn star schema design and table relationships for Power BI." },
-                { href: "/measures-vs-columns", icon: Columns3, title: "Measures vs Columns", description: "Understand when to use measures vs calculated columns in Power BI." },
-                { href: "/data-visualization", icon: BarChart3, title: "Data Visualization", description: "Visualize your query results with Power BI charts and dashboards." },
-              ].map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link key={item.href} href={item.href} className="group block">
-                    <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">{item.title}</h4>
-                        <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
-                      </div>
-                      <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
           </div>
         </AnimateOnScroll>
 
+        {/* Quick Introduction */}
+        <AnimateOnScroll variant="fade-up" delay={50}>
+          <Card className="mb-12 border-blue-500/20 hover:border-blue-500/40 bg-blue-500/5">
+            <CardContent className="py-6">
+              <h3 className="mb-2 text-lg font-semibold">Quick Introduction</h3>
+              <p className="text-sm leading-relaxed text-foreground/80 dark:text-foreground/70">
+                <strong className="text-foreground">SQL (Structured Query Language)</strong> is the standard language for communicating with
+                relational databases. As a Power BI developer, you&apos;ll encounter SQL when connecting to databases via DirectQuery,
+                writing custom SQL queries in Power Query, or optimizing your data source for better report performance.
+                Understanding SQL helps you write efficient queries, design better data models, and troubleshoot
+                the queries that Power BI generates behind the scenes.
+              </p>
+            </CardContent>
+          </Card>
+        </AnimateOnScroll>
+
+        {/* ── Layout: Sidebar + Content ── */}
+        <div className="flex gap-10">
+          {/* Sidebar Navigation — sticky, Microsoft Learn style */}
+          <aside className="hidden w-56 shrink-0 lg:block">
+            <div className="sticky top-24">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+                In this article
+              </p>
+              <nav className="flex flex-col gap-0.5 border-l border-border">
+                {sidebarItems.map((item) => (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                    className={cn(
+                      "-ml-px border-l-2 px-4 py-1.5 text-sm transition-colors",
+                      activeSection === item.id
+                        ? "border-primary font-medium text-foreground"
+                        : "border-transparent text-muted-foreground hover:border-muted-foreground/40 hover:text-foreground"
+                    )}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </aside>
+
+          {/* Main Content */}
+          <div className="min-w-0 flex-1 space-y-16">
+
+            {/* SQL vs DAX Quick Reference */}
+            <section id="sql-dax-ref" className="scroll-mt-24">
+              <AnimateOnScroll variant="fade-up">
+                <Card className="border-primary/20 hover:border-primary/40 bg-primary/5">
+                  <CardHeader>
+                    <CardTitle className="text-yellow-700 dark:text-primary">SQL ↔ DAX Quick Reference</CardTitle>
+                    <CardDescription>Common equivalents between SQL and DAX</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-border">
+                            <th className="px-3 py-2 text-left">SQL</th>
+                            <th className="px-3 py-2 text-left">DAX Equivalent</th>
+                            <th className="px-3 py-2 text-left">Notes</th>
+                          </tr>
+                        </thead>
+                        <tbody className="text-foreground">
+                          {[
+                            { sql: "SELECT ... FROM ... WHERE", dax: "CALCULATETABLE / FILTER", note: "Filter context vs row-by-row" },
+                            { sql: "GROUP BY + SUM()", dax: "SUMMARIZECOLUMNS", note: "DAX auto-groups in visuals" },
+                            { sql: "INNER JOIN ... ON", dax: "RELATED()", note: "Relationships defined in model" },
+                            { sql: "LEFT JOIN", dax: "NATURALLEFTOUTERJOIN", note: "Or handle with IF(ISBLANK(...))" },
+                            { sql: "CASE WHEN", dax: "SWITCH(TRUE(), ...)", note: "Multi-condition branching" },
+                            { sql: "COALESCE(x, 0)", dax: "IF(ISBLANK(x), 0, x)", note: "Handle blanks/NULLs" },
+                            { sql: "COUNT(DISTINCT col)", dax: "DISTINCTCOUNT(col)", note: "Same semantics" },
+                            { sql: "ROW_NUMBER() OVER()", dax: "RANKX()", note: "Ranking in context" },
+                            { sql: "LAG() / LEAD()", dax: "DATEADD / SAMEPERIODLASTYEAR", note: "Prior period comparisons" },
+                            { sql: "SUM() OVER()", dax: "CALCULATE + ALL pattern", note: "Window vs filter manipulation" },
+                            { sql: "CTE (WITH ... AS)", dax: "VAR / RETURN", note: "Named intermediate results" },
+                            { sql: "CREATE INDEX", dax: "N/A (VertiPaq handles it)", note: "Import mode auto-optimizes" },
+                          ].map((row, i) => (
+                            <tr key={i} className={i % 2 === 0 ? "" : "bg-muted/10"}>
+                              <td className="px-3 py-2 font-mono text-xs">{row.sql}</td>
+                              <td className="px-3 py-2 font-mono text-xs">{row.dax}</td>
+                              <td className="px-3 py-2 text-xs">{row.note}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </AnimateOnScroll>
+            </section>
+
+            {/* Topics */}
+            {sqlTopics.map((topic) => (
+              <AnimateOnScroll key={topic.id} variant="fade-up">
+                <section id={topic.id} className="scroll-mt-24">
+                  <div className="mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                        <topic.icon className="h-5 w-5 text-yellow-700 dark:text-primary" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl font-bold">{topic.title}</h2>
+                        <p className="text-sm text-foreground/70 dark:text-foreground/60">{topic.description}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    {topic.examples.map((example) => (
+                      <Card key={example.title}>
+                        <CardHeader>
+                          <CardTitle className="text-base">{example.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <CodeBlock code={example.code} language="sql" />
+                          {example.note && (
+                            <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+                              <p className="text-sm">
+                                <strong className="text-yellow-700 dark:text-primary">💡 Power BI Note:</strong> {example.note}
+                              </p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </section>
+              </AnimateOnScroll>
+            ))}
+
+            {/* Related Content */}
+            <AnimateOnScroll variant="fade-up">
+              <div className="mt-12">
+                <h3 className="mb-4 text-lg font-semibold text-foreground">Related Content</h3>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    { href: "/dax-guide", icon: Calculator, title: "DAX Functions Guide", description: "Explore DAX functions — the Power BI equivalent of SQL expressions." },
+                    { href: "/data-modeling", icon: Database, title: "Data Modeling", description: "Learn star schema design and table relationships for Power BI." },
+                    { href: "/measures-vs-columns", icon: Columns3, title: "Measures vs Columns", description: "Understand when to use measures vs calculated columns in Power BI." },
+                    { href: "/data-visualization", icon: BarChart3, title: "Data Visualization", description: "Visualize your query results with Power BI charts and dashboards." },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link key={item.href} href={item.href} className="group block">
+                        <div className="flex items-center gap-4 rounded-xl border border-border/50 bg-card/50 p-4 transition-all duration-300 hover:border-primary/30 hover:bg-accent/50 hover:shadow-md">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <Icon className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">{item.title}</h4>
+                            <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
+                          </div>
+                          <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300 group-hover:translate-x-1 group-hover:text-primary" />
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </AnimateOnScroll>
+
+          </div>
         </div>
       </div>
-    </div>
     </PageTransition>
   );
 }

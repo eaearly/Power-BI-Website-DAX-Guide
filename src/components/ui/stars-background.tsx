@@ -72,11 +72,13 @@ export function StarsBackground({
 
     resizeObserver.observe(canvas.parentElement!);
 
-    /* Throttle to ~24 fps — twinkle doesn't need 60fps */
-    const FRAME_INTERVAL = 1000 / 24;
+    /* Throttle to ~20 fps — twinkle doesn't need more */
+    const FRAME_INTERVAL = 1000 / 20;
     let lastFrameTime = 0;
+    let paused = false;
 
     const render = (now: number) => {
+      if (paused) return;
       animationRef.current = requestAnimationFrame(render);
 
       if (now - lastFrameTime < FRAME_INTERVAL) return;
@@ -103,11 +105,24 @@ export function StarsBackground({
       });
     };
 
+    /* Pause animation when tab is hidden to save CPU/GPU */
+    const handleVisibility = () => {
+      if (document.hidden) {
+        paused = true;
+        cancelAnimationFrame(animationRef.current);
+      } else {
+        paused = false;
+        animationRef.current = requestAnimationFrame(render);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     animationRef.current = requestAnimationFrame(render);
 
     return () => {
       resizeObserver.disconnect();
       cancelAnimationFrame(animationRef.current);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [resolvedTheme, generateStars]);
 

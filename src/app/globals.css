@@ -214,6 +214,8 @@ code {
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradient-shift 6s ease infinite;
+  will-change: background-position;
+  transform: translateZ(0);
 }
 
 /* ── Focus ring utility ── */
@@ -228,23 +230,20 @@ code {
   mix-blend-mode: normal;
 }
 
-/* Smooth theme transition — only color-related properties, no layout lag */
-html:not(.no-transition) *,
-html:not(.no-transition) *::before,
-html:not(.no-transition) *::after {
+/* Smooth theme transition — scoped to interactive elements only.
+   Previously used wildcard (*) which forced the browser to track
+   transition state for every DOM node, causing 1000ms+ INP lag. */
+html:not(.no-transition) :is(
+  a, button, input, select, textarea,
+  [role="button"], [role="tab"], [role="menuitem"],
+  nav, header, footer, aside,
+  h1, h2, h3, h4, h5, h6, p, span, li, label,
+  .card, [class*="card"],
+  .badge, [class*="badge"]
+) {
   transition-property: color, background-color, border-color, box-shadow;
   transition-duration: 150ms;
   transition-timing-function: ease-out;
-}
-/* Exclude heavy elements from theme transition */
-html:not(.no-transition) canvas,
-html:not(.no-transition) svg,
-html:not(.no-transition) img,
-html:not(.no-transition) video,
-html:not(.no-transition) iframe,
-html:not(.no-transition) pre,
-html:not(.no-transition) code {
-  transition: none;
 }
 
 /* ── Scroll-driven fade-in animations ── */
@@ -287,9 +286,28 @@ html:not(.no-transition) code {
 }
 .animate-float {
   animation: float 3s ease-in-out infinite;
+  will-change: transform;
+  transform: translateZ(0);
 }
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+  will-change: box-shadow;
+  transform: translateZ(0);
+}
+
+/* ── Respect user motion preferences ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-gradient,
+  .animate-float,
+  .animate-pulse-glow {
+    animation: none;
+  }
 }
 
 /* Stagger delay utilities */
